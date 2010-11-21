@@ -1,0 +1,24 @@
+#summary A compendium of links to alternative products and comparing reviews.
+
+= Libraries =
+
+  * [http://www.highcharts.com/ HighCharts]
+  * [https://github.com/uiteoi/ico ICO]
+  * [http://www.deensoft.com/lab/protochart/index.php Protochart]
+  * [http://www.filamentgroup.com/lab/update_to_jquery_visualize_accessible_charts_with_html5_from_designing_with/ jQuery Visualize]
+  * [http://bluff.jcoglan.com/api.html Bluff]
+  * [http://grafico.kilianvalkhof.com/ Grafico]
+  * [http://www.dojotoolkit.org/reference-guide/dojox/charting.html Dojo Charting]
+  * [http://www.dhtmlx.com/docs/products/dhtmlxChart/index.shtml DHTMLX Charts]
+  * [http://g.raphaeljs.com/ gRaphael]
+
+= Comparisons and Reviews =
+
+  # http://blog.eng.compendiumblogware.com/blog/yui-library
+  # http://webdesignledger.com/resources/13-useful-javascript-solutions-for-charts-and-graphs
+  # http://www.activecampus.org/bk/?page_id=141
+  # http://pcjuzer.blogspot.com/2010/06/javascript-grafikon-rajzolok.html
+  # http://stackoverflow.com/questions/119969/javascript-chart-library
+  # http://www.smashingmagazine.com/2007/10/18/charts-and-graphs-modern-solutions/
+  # http://www.webdesignbooth.com/14-javascript-resources-and-plugins-for-creating-a-stylish-chart/
+  # http://www.smashingapps.com/2009/06/26/20-really-useful-and-free-scripts-to-plot-charts-in-your-site-or-blog-pages.html

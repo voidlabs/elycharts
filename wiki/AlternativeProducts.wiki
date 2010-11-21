@@ -11,6 +11,10 @@
   * [http://www.dojotoolkit.org/reference-guide/dojox/charting.html Dojo Charting]
   * [http://www.dhtmlx.com/docs/products/dhtmlxChart/index.shtml DHTMLX Charts]
   * [http://g.raphaeljs.com/ gRaphael]
+  * [http://www.jscharts.com/ JS Charts]
+  * [http://www.liquidx.net/plotkit/ PlotKit]
+  * [http://code.google.com/p/flot/ Flot]
+  * [http://solutoire.com/flotr/ FlotR]
 
 = Comparisons and Reviews =
 

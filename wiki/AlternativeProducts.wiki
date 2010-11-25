@@ -2,19 +2,22 @@
 
 = Libraries =
 
-  * [http://www.highcharts.com/ HighCharts]
-  * [https://github.com/uiteoi/ico ICO]
-  * [http://www.deensoft.com/lab/protochart/index.php Protochart]
-  * [http://www.filamentgroup.com/lab/update_to_jquery_visualize_accessible_charts_with_html5_from_designing_with/ jQuery Visualize]
-  * [http://bluff.jcoglan.com/api.html Bluff]
-  * [http://grafico.kilianvalkhof.com/ Grafico]
-  * [http://www.dojotoolkit.org/reference-guide/dojox/charting.html Dojo Charting]
-  * [http://www.dhtmlx.com/docs/products/dhtmlxChart/index.shtml DHTMLX Charts]
-  * [http://g.raphaeljs.com/ gRaphael]
-  * [http://www.jscharts.com/ JS Charts]
-  * [http://www.liquidx.net/plotkit/ PlotKit]
-  * [http://code.google.com/p/flot/ Flot]
-  * [http://solutoire.com/flotr/ FlotR]
+  * [http://www.highcharts.com/ HighCharts] JS+SVG, Free for non commercial
+  * [https://github.com/uiteoi/ico ICO] JS+SVG, MIT, Req:Raphael,Prototyype
+  * [http://www.deensoft.com/lab/protochart/index.php Protochart] JS+Canvas, Free?, Req:Prototype,excanvas (plugin ie6)
+  * [http://www.filamentgroup.com/lab/update_to_jquery_visualize_accessible_charts_with_html5_from_designing_with/ jQuery Visualize] JS+Canvas, Free, Req:jquery,excanvas (plugin ie6)
+  * [http://bluff.jcoglan.com/api.html Bluff] JS+Canvas, GPL+MIT, Req:Excanvas
+  * [http://grafico.kilianvalkhof.com/ Grafico] JS+SVG, MIT, Req:Prototype,Raphael
+  * [http://www.dojotoolkit.org/reference-guide/dojox/charting.html Dojo Charting] JS+SVG, BSD/Academic, Req: Dojo
+  * [http://www.dhtmlx.com/docs/products/dhtmlxChart/index.shtml DHTMLX Charts] JS+HTML, GPL/Commercial, Req:-
+  * [http://g.raphaeljs.com/ gRaphael] JS+SVG, MIT, Req: Raphael
+  * [http://www.jscharts.com/ JS Charts] JS+Canvas (ie6 comp?), CC/Commercial, Req:-
+  * [http://www.liquidx.net/plotkit/ PlotKit] JS+SVG/Canvas, BSD, Req: Excanvas
+  * [http://code.google.com/p/flot/ Flot] JS+Canvas, MIT, Req:jquery,excanvas
+  * [http://solutoire.com/flotr/ FlotR] JS+Canvas, MIT, Req: Prototype, Excanvas
+  * [http://vis.stanford.edu/protovis/ Protovis] JS+SVG (no ie6), BSD
+  * [http://www.ejschart.com Emprise JS Charts] JS+Canvas (ie6 comp?), Commercial
+
 
 = Comparisons and Reviews =
 
@@ -26,3 +29,4 @@
   # http://www.smashingmagazine.com/2007/10/18/charts-and-graphs-modern-solutions/
   # http://www.webdesignbooth.com/14-javascript-resources-and-plugins-for-creating-a-stylish-chart/
   # http://www.smashingapps.com/2009/06/26/20-really-useful-and-free-scripts-to-plot-charts-in-your-site-or-blog-pages.html
+  # http://insideria.com/2009/12/28-rich-data-visualization-too.html

@@ -472,7 +472,7 @@ $.elycharts.line = {
             forceBorderX1 && i == 0 || // Always show first line if forced
             forceBorderX2 && i == nx || // Always show last line if forced
             drawV && ( // To show other lines draw must be true
-              (props.nx != 'auto' && i > 0 && i < ny) || // If nx = [number] show other lines (first and last are managed above with forceBorder)
+              (props.nx != 'auto' && i > 0 && i < nx) || // If nx = [number] show other lines (first and last are managed above with forceBorder)
               (props.nx == 'auto' && (typeof labels[i] != 'boolean' || labels[i])) // if nx = 'auto' show all lines if a label is associated
             )
             // Show all lines if props.nx is a number, or if label != false, AND draw must be true

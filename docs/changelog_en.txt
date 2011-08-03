@@ -1,3 +1,6 @@
+v2.1.4-SNAPSHOT
+- fix for "grid.nx" values when nx < ny and they are not "auto" (Issue #13)
+
 v2.1.3
 - changed default value to "false" for axis.labels
 - changed default value to "false" for series.dot

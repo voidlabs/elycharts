@@ -1,5 +1,6 @@
+/********* Source File: src/elycharts_defaults.js*********/
 /*!*********************************************************************
- * ELYCHARTS v2.1.3
+ * ELYCHARTS v2.1.4-SNAPSHOT
  * A Javascript library to generate interactive charts with vectorial graphics.
  *
  * Copyright (c) 2010 Void Labs s.n.c. (http://void.it)
@@ -451,6 +452,7 @@ $.elycharts.templates = {
 }
 
 })(jQuery);
+/********* Source File: src/elycharts_core.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -1596,6 +1598,7 @@ TODO
 * ripristinare shadow
 
 *********************************************/
+/********* Source File: src/elycharts_manager_anchor.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -1706,6 +1709,7 @@ $.elycharts.anchormanager = {
 $.elycharts.featuresmanager.register($.elycharts.anchormanager, 30);
 
 })(jQuery);
+/********* Source File: src/elycharts_manager_animation.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -2101,6 +2105,7 @@ $.elycharts.frameanimationmanager = {
 $.elycharts.featuresmanager.register($.elycharts.frameanimationmanager, 90);
 
 })(jQuery);
+/********* Source File: src/elycharts_manager_highlight.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -2116,32 +2121,47 @@ var common = $.elycharts.common;
 
 /***********************************************************************
  * FEATURE: HIGHLIGHT
- * 
+ *
  * Permette di evidenziare in vari modi l'area in cui si passa con il
  * mouse.
  **********************************************************************/
 
 $.elycharts.highlightmanager = {
-  
+
+  removeHighlighted : function(env, full) {
+    if (env.highlighted)
+      while (env.highlighted.length > 0) {
+        var o = env.highlighted.pop();
+        if (o.piece) {
+          if (full)
+            common.animationStackPush(env, o.piece, o.piece.element, common.getPieceFullAttr(env, o.piece), o.cfg.restoreSpeed, o.cfg.restoreEasing, 0, true);
+        } else
+          o.element.remove();
+      }
+  },
+
   afterShow : function(env, pieces) {
+    if (env.highlighted && env.highlighted.length > 0)
+      this.removeHighlighted(env, false);
     env.highlighted = [];
   },
-  
+
   onMouseOver : function(env, serie, index, mouseAreaData) {
     var path, element;
     // TODO Se non e' attivo l'overlay (per la serie o per tutto) e' inutile fare il resto
-    
+
     // Cerco i piece da evidenziare (tutti quelli che sono costituiti da path multipli)
     for (var i = 0; i < mouseAreaData.pieces.length; i++)
-    
+
       // Il loop sotto estrae solo i pieces con array di path (quindi non i line o i fill del linechart ... ma il resto si)
-      if (mouseAreaData.pieces[i].section == 'Series' && mouseAreaData.pieces[i].paths 
-        && (!serie || mouseAreaData.pieces[i].serie == serie) 
+      if (mouseAreaData.pieces[i].section == 'Series' && mouseAreaData.pieces[i].paths
+        && (!serie || mouseAreaData.pieces[i].serie == serie)
         && mouseAreaData.pieces[i].paths[index] && mouseAreaData.pieces[i].paths[index].element) {
         var piece = mouseAreaData.pieces[i].paths[index];
         element = piece.element;
         path = piece.path;
         var attr = common.getElementOriginalAttrs(element);
+        var newattr = false; // In caso la geometria dell'oggetto è modificata mediante attr (es: per circle) qui memorizza i nuovi attributi
         var props = serie ? mouseAreaData.props : common.areaProps(env, mouseAreaData.pieces[i].section, mouseAreaData.pieces[i].serie);
         var pelement, ppiece, ppath;
         if (path && props.highlight) {
@@ -2158,7 +2178,8 @@ $.elycharts.highlightmanager = {
             }
             else if (path[0][0] == 'CIRCLE') {
               // I pass directly new radius
-              common.animationStackPush(env, piece, element, {r : path[0][3] * scale[0]}, props.highlight.scaleSpeed, props.highlight.scaleEasing);
+              newattr = {r : path[0][3] * scale[0]};
+              common.animationStackPush(env, piece, element, newattr, props.highlight.scaleSpeed, props.highlight.scaleEasing);
             }
             else if (path[0][0] == 'SLICE') {
               // Per lo slice x e' il raggio, y e' l'angolo
@@ -2167,11 +2188,11 @@ $.elycharts.highlightmanager = {
                 d = 90;
               path = [ [ 'SLICE', path[0][1], path[0][1], path[0][3] * scale[0], path[0][4], path[0][5] - d, path[0][6] + d ] ];
               common.animationStackPush(env, piece, element, common.getSVGProps(common.preparePathShow(env, path)), props.highlight.scaleSpeed, props.highlight.scaleEasing);
-              
+
             } else if (env.opt.type == 'funnel') {
               var dx = (piece.rect[2] - piece.rect[0]) * (scale[0] - 1) / 2;
               var dy = (piece.rect[3] - piece.rect[1]) * (scale[1] - 1) / 2;
-              
+
               // Specifico di un settore del funnel
               common.animationStackStart(env);
               path = [ common.movePath(env, [ path[0]], [-dx, -dy])[0],
@@ -2180,7 +2201,7 @@ $.elycharts.highlightmanager = {
                 common.movePath(env, [ path[3]], [-dx, +dy])[0],
                 path[4] ];
               common.animationStackPush(env, piece, element, common.getSVGProps(common.preparePathShow(env, path)), props.highlight.scaleSpeed, props.highlight.scaleEasing, 0, true);
-              
+
               // Se c'e' un piece precedente lo usa, altrimenti cerca un topSector per la riduzione
               pelement = false;
               if (index > 0) {
@@ -2204,7 +2225,7 @@ $.elycharts.highlightmanager = {
                 common.animationStackPush(env, ppiece, pelement, common.getSVGProps(common.preparePathShow(env, ppath)), props.highlight.scaleSpeed, props.highlight.scaleEasing, 0, true);
                 env.highlighted.push({piece : ppiece, cfg : props.highlight});
               }
-              
+
               // Se c'e' un piece successivo lo usa, altrimenti cerca un bottomSector per la riduzione
               pelement = false;
               if (index < mouseAreaData.pieces[i].paths.length - 1) {
@@ -2228,11 +2249,11 @@ $.elycharts.highlightmanager = {
                 common.animationStackPush(env, ppiece, pelement, common.getSVGProps(common.preparePathShow(env, ppath)), props.highlight.scaleSpeed, props.highlight.scaleEasing, 0, true);
                 env.highlighted.push({piece : ppiece, cfg : props.highlight});
               }
-              
+
               common.animationStackEnd(env);
             }
             /* Con scale non va bene
-            if (!attr.scale) 
+            if (!attr.scale)
               attr.scale = [1, 1];
             element.attr({scale : [scale[0], scale[1]]}); */
           }
@@ -2247,13 +2268,17 @@ $.elycharts.highlightmanager = {
             path = common.movePath(env, path, offset);
             common.animationStackPush(env, piece, element, common.getSVGProps(common.preparePathShow(env, path)), props.highlight.moveSpeed, props.highlight.moveEasing);
           }
-          
+
           //env.highlighted.push({element : element, attr : attr});
           env.highlighted.push({piece : piece, cfg : props.highlight});
-          
+
           if (props.highlight.overlayProps) {
+            // NOTA: path e' il path modificato dai precedenti (cosi' l'overlay tiene conto della cosa), deve guardare anche a newattr
             //BIND: mouseAreaData.listenerDisabled = true;
-            element = common.showPath(env, path).attr(props.highlight.overlayProps);
+            element = common.showPath(env, path);
+            if (newattr)
+              element.attr(newattr);
+            element.attr(props.highlight.overlayProps);
             //BIND: $(element.node).unbind().mouseover(mouseAreaData.mouseover).mouseout(mouseAreaData.mouseout);
             // Se metto immediatamente il mouseAreaData.listenerDisabled poi va comunque un mouseout dalla vecchia area e va
             // in loop. TODO Rivedere e sistemare anche per tooltip
@@ -2263,7 +2288,7 @@ $.elycharts.highlightmanager = {
           }
         }
       }
-    
+
     if (env.opt.features.highlight.indexHighlight && env.opt.type == 'line') {
       var t = env.opt.features.highlight.indexHighlight;
       if (t == 'auto')
@@ -2272,13 +2297,13 @@ $.elycharts.highlightmanager = {
       var delta1 = (env.opt.width - env.opt.margins[3] - env.opt.margins[1]) / (env.opt.labels.length > 0 ? env.opt.labels.length : 1);
       var delta2 = (env.opt.width - env.opt.margins[3] - env.opt.margins[1]) / (env.opt.labels.length > 1 ? env.opt.labels.length - 1 : 1);
       var lineCenter = true;
-      
+
       switch (t) {
         case 'bar':
           path = [ ['RECT', env.opt.margins[3] + index * delta1, env.opt.margins[0] ,
             env.opt.margins[3] + (index + 1) * delta1, env.opt.height - env.opt.margins[2] ] ];
           break;
-        
+
         case 'line':
           lineCenter = false;
         case 'barline':
@@ -2294,22 +2319,17 @@ $.elycharts.highlightmanager = {
       }
     }
   },
-  
+
   onMouseOut : function(env, serie, index, mouseAreaData) {
-    while (env.highlighted.length > 0) {
-      var o = env.highlighted.pop();
-      if (o.piece)
-        common.animationStackPush(env, o.piece, o.piece.element, common.getPieceFullAttr(env, o.piece), o.cfg.restoreSpeed, o.cfg.restoreEasing, 0, true);
-      else
-        o.element.remove();
-    }
+    this.removeHighlighted(env, true);
   }
 
-}
+};
 
 $.elycharts.featuresmanager.register($.elycharts.highlightmanager, 21);
 
 })(jQuery);
+/********* Source File: src/elycharts_manager_label.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -2443,6 +2463,7 @@ $.elycharts.labelmanager = {
 $.elycharts.featuresmanager.register($.elycharts.labelmanager, 5);
 
 })(jQuery);
+/********* Source File: src/elycharts_manager_legend.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -2586,6 +2607,7 @@ $.elycharts.legendmanager = {
 $.elycharts.featuresmanager.register($.elycharts.legendmanager, 90);
 
 })(jQuery);
+/********* Source File: src/elycharts_manager_mouse.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -2810,6 +2832,7 @@ $.elycharts.mousemanager = {
 $.elycharts.featuresmanager.register($.elycharts.mousemanager, 0);
 
 })(jQuery);
+/********* Source File: src/elycharts_manager_tooltip.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -2936,7 +2959,7 @@ $.elycharts.tooltipmanager = {
     var tip = false;
     if (env.opt.tooltips) {
       if (typeof env.opt.tooltips == 'function')
-        tip = env.opt.tooltips(serie, index, env.opt.values, serie && env.opt.values[serie] && env.opt.values[serie][index] ? env.opt.values[serie][index] : false);
+        tip = env.opt.tooltips(env, serie, index, serie && env.opt.values[serie] && env.opt.values[serie][index] ? env.opt.values[serie][index] : false, env.opt.labels && env.opt.labels[index] ? env.opt.labels[index] : false);
       else {
         if (serie && env.opt.tooltips[serie] && env.opt.tooltips[serie][index])
           tip = env.opt.tooltips[serie][index];
@@ -3014,6 +3037,7 @@ $.elycharts.tooltipmanager = {
 $.elycharts.featuresmanager.register($.elycharts.tooltipmanager, 20);
 
 })(jQuery);
+/********* Source File: src/elycharts_chart_line.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -3488,7 +3512,7 @@ $.elycharts.line = {
             forceBorderX1 && i == 0 || // Always show first line if forced
             forceBorderX2 && i == nx || // Always show last line if forced
             drawV && ( // To show other lines draw must be true
-              (props.nx != 'auto' && i > 0 && i < ny) || // If nx = [number] show other lines (first and last are managed above with forceBorder)
+              (props.nx != 'auto' && i > 0 && i < nx) || // If nx = [number] show other lines (first and last are managed above with forceBorder)
               (props.nx == 'auto' && (typeof labels[i] != 'boolean' || labels[i])) // if nx = 'auto' show all lines if a label is associated
             )
             // Show all lines if props.nx is a number, or if label != false, AND draw must be true
@@ -3542,6 +3566,7 @@ $.elycharts.line = {
 }
 
 })(jQuery);
+/********* Source File: src/elycharts_chart_pie.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.

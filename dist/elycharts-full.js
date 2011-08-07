@@ -1,6 +1,5 @@
-/********* Source File: src/elycharts_defaults.js*********/
 /*!*********************************************************************
- * ELYCHARTS v2.1.4-SNAPSHOT $Id$
+ * ELYCHARTS v2.1.3
  * A Javascript library to generate interactive charts with vectorial graphics.
  *
  * Copyright (c) 2010 Void Labs s.n.c. (http://void.it)
@@ -22,14 +21,14 @@ $.elycharts.templates = {
     // type : 'line|pie|funnel|barline'
     
     // Permette di specificare una configurazione di default da utilizzare (definita in $.elycharts.templates.NOME)
-    // La configurazione completa � quindi data da tutti i valori della conf di default alla quale viene unita (con sovrascrittura) la conf corrente
-    // Il parametro � ricorsivo (la configurazione di default puo' a sua volta avere una configurazione di default)
-    // Se non specificato, la configurazione di default � quella con lo stesso nome del tipo di grafico
+    // La configurazione completa è quindi data da tutti i valori della conf di default alla quale viene unita (con sovrascrittura) la conf corrente
+    // Il parametro è ricorsivo (la configurazione di default puo' a sua volta avere una configurazione di default)
+    // Se non specificato, la configurazione di default è quella con lo stesso nome del tipo di grafico
     // template : 'NOME',
     
     /* DATI:
-    // I valori associati a ogni serie del grafico. Ogni serie � associata a una chiave dell'oggetto value, il cui 
-    // valore � l'array di dati relativi
+    // I valori associati a ogni serie del grafico. Ogni serie è associata a una chiave dell'oggetto value, il cui 
+    // valore è l'array di dati relativi
     values : {},
     
     // Label associate ai valori del grafico
@@ -76,7 +75,7 @@ $.elycharts.templates = {
       tooltip : {
         active : true,
         // Se width ed height vengono impostati a 0 o ad "auto" (equivalenti) non vengono fissate dimensioni, quindi il contenuto si autodimensiona in funzione del tooltip
-        // Impostare a 0|auto � incompatibile con il frame SVG, quindi viene automaticamente disabilitato (come se frameProps = false)
+        // Impostare a 0|auto è incompatibile con il frame SVG, quindi viene automaticamente disabilitato (come se frameProps = false)
         width: 100, height: 50, 
         roundedCorners: 5, 
         padding: [6, 6] /* y, x */,
@@ -138,7 +137,7 @@ $.elycharts.templates = {
         // Disegna o meno la label interna al grafico
         active : false,
         // Imposta un offset [X,Y] per la label (le coordinate sono relative al sistema di assi dello specifico settore disegnato. 
-        // Ad es. per il piechart la X � la distanza dal centro, la Y lo spostamento ortogonale
+        // Ad es. per il piechart la X è la distanza dal centro, la Y lo spostamento ortogonale
         //offset : [x, y],
         html : false,
         // Proprieta' della label (per HTML = false)
@@ -248,9 +247,9 @@ $.elycharts.templates = {
         padding : [ 5, 5 ],
         // La distanza dal bordo sinistro
         left : 10,
-        // Percorso della linea: [ [ x, y iniziali (rispetto al punto di inizio standard)], ... [x, y intermedi (rispetto al punto di inizio standard)] ..., [x, y finale (rispetto all'angolo del balloon pi� vicino al punto di inizio)] ]
+        // Percorso della linea: [ [ x, y iniziali (rispetto al punto di inizio standard)], ... [x, y intermedi (rispetto al punto di inizio standard)] ..., [x, y finale (rispetto all'angolo del balloon più vicino al punto di inizio)] ]
         line : [ [ 0, 0 ], [0, 0] ],
-        // Propriet� della linea
+        // Proprietà della linea
         lineProps : { }
       },
       legend : {
@@ -284,7 +283,7 @@ $.elycharts.templates = {
     // Axis
     defaultAxis : {
       // [non per asse x] Normalizza il valore massimo dell'asse in modo che tutte le label abbiamo al massimo N cifre significative
-      // (Es: se il max e' 135 e normalize = 2 verra' impostato il max a 140, ma se il numero di label in y e' 3 verr� impostato 150)
+      // (Es: se il max e' 135 e normalize = 2 verra' impostato il max a 140, ma se il numero di label in y e' 3 verrà impostato 150)
       normalize: 2,
       // Permette di impostare i valori minimi e massimi di asse (invece di autorilevarli)
       min: 0, //max: x,
@@ -304,15 +303,15 @@ $.elycharts.templates = {
       //labelsFormatHandler : function (label) { return label },
       // Salta le prime N label
       //labelsSkip : 0, 
-      // Force alignment for the label. Auto will automatically center it for x axis (also considering labelsRotate), "end" for l axis, "start" for the right axis.
-      //labelsAnchor : "auto"
-      // [solo asse x] Force an alternative position for the X axis labels. Auto will automatically choose the right position depending on "labelsCenter", the type of charts (bars vs lines), and labelsRotate.
-      //labelsPos : "auto",
-      // Automatically hide labels that would overlap previous labels.
+      // [solo asse x] Decide la posizione della label rispetto alla linea della griglia relativa
+      //labelsPos : "start",
+      // Modifica l'allineamento standard (middle per asse x, end per asse l, start per asse right)
+      //labelsAnchor : "start"
+      // Nascondi automaticamente le label che vengono coperte da altre
       //labelsHideCovered : true, 
       // Inserisce un margine alla label (a sinistra se in asse x, in alto se in altri assi)
       //labelsMargin: 10,  
-      // [solo asse x] If labelsHideCovered = true, make sure each label have at least this space before the next one. 
+      // [solo asse x] Se labelsHideCovered = true, fa si che ci sia almeno un margine X a destra della label
       //labelsMarginRight: 0, 
       // Distanza del titolo dall'asse
       titleDistance : 25, titleDistanceIE : .75,
@@ -327,7 +326,7 @@ $.elycharts.templates = {
       // Tipo di serie, puo' essere 'line' o 'bar'
       type : 'line', 
       // L'asse di riferimento della serie. Gli assi "l" ed "r" sono i 2 assi visibili destro e sinistro. 
-      // E' possibile inserire anche un asse arbitrario (che non sar� visibile)
+      // E' possibile inserire anche un asse arbitrario (che non sarà visibile)
       axis : 'l',
       // Specificare cumulative = true se i valori inseriti per la serie sono cumulativi
       cumulative : false,
@@ -452,7 +451,6 @@ $.elycharts.templates = {
 }
 
 })(jQuery);
-/********* Source File: src/elycharts_core.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -1598,7 +1596,6 @@ TODO
 * ripristinare shadow
 
 *********************************************/
-/********* Source File: src/elycharts_manager_anchor.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -1709,7 +1706,6 @@ $.elycharts.anchormanager = {
 $.elycharts.featuresmanager.register($.elycharts.anchormanager, 30);
 
 })(jQuery);
-/********* Source File: src/elycharts_manager_animation.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -2105,7 +2101,6 @@ $.elycharts.frameanimationmanager = {
 $.elycharts.featuresmanager.register($.elycharts.frameanimationmanager, 90);
 
 })(jQuery);
-/********* Source File: src/elycharts_manager_balloon.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -2184,7 +2179,6 @@ $.elycharts.balloonmanager = {
 $.elycharts.featuresmanager.register($.elycharts.balloonmanager, 30);
 
 })(jQuery);
-/********* Source File: src/elycharts_manager_highlight.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -2200,47 +2194,32 @@ var common = $.elycharts.common;
 
 /***********************************************************************
  * FEATURE: HIGHLIGHT
- *
+ * 
  * Permette di evidenziare in vari modi l'area in cui si passa con il
  * mouse.
  **********************************************************************/
 
 $.elycharts.highlightmanager = {
-
-  removeHighlighted : function(env, full) {
-    if (env.highlighted)
-      while (env.highlighted.length > 0) {
-        var o = env.highlighted.pop();
-        if (o.piece) {
-          if (full)
-            common.animationStackPush(env, o.piece, o.piece.element, common.getPieceFullAttr(env, o.piece), o.cfg.restoreSpeed, o.cfg.restoreEasing, 0, true);
-        } else
-          o.element.remove();
-      }
-  },
-
+  
   afterShow : function(env, pieces) {
-    if (env.highlighted && env.highlighted.length > 0)
-      this.removeHighlighted(env, false);
     env.highlighted = [];
   },
-
+  
   onMouseOver : function(env, serie, index, mouseAreaData) {
     var path, element;
     // TODO Se non e' attivo l'overlay (per la serie o per tutto) e' inutile fare il resto
-
+    
     // Cerco i piece da evidenziare (tutti quelli che sono costituiti da path multipli)
     for (var i = 0; i < mouseAreaData.pieces.length; i++)
-
+    
       // Il loop sotto estrae solo i pieces con array di path (quindi non i line o i fill del linechart ... ma il resto si)
-      if (mouseAreaData.pieces[i].section == 'Series' && mouseAreaData.pieces[i].paths
-        && (!serie || mouseAreaData.pieces[i].serie == serie)
+      if (mouseAreaData.pieces[i].section == 'Series' && mouseAreaData.pieces[i].paths 
+        && (!serie || mouseAreaData.pieces[i].serie == serie) 
         && mouseAreaData.pieces[i].paths[index] && mouseAreaData.pieces[i].paths[index].element) {
         var piece = mouseAreaData.pieces[i].paths[index];
         element = piece.element;
         path = piece.path;
         var attr = common.getElementOriginalAttrs(element);
-        var newattr = false; // In caso la geometria dell'oggetto è modificata mediante attr (es: per circle) qui memorizza i nuovi attributi
         var props = serie ? mouseAreaData.props : common.areaProps(env, mouseAreaData.pieces[i].section, mouseAreaData.pieces[i].serie);
         var pelement, ppiece, ppath;
         if (path && props.highlight) {
@@ -2257,8 +2236,7 @@ $.elycharts.highlightmanager = {
             }
             else if (path[0][0] == 'CIRCLE') {
               // I pass directly new radius
-              newattr = {r : path[0][3] * scale[0]};
-              common.animationStackPush(env, piece, element, newattr, props.highlight.scaleSpeed, props.highlight.scaleEasing);
+              common.animationStackPush(env, piece, element, {r : path[0][3] * scale[0]}, props.highlight.scaleSpeed, props.highlight.scaleEasing);
             }
             else if (path[0][0] == 'SLICE') {
               // Per lo slice x e' il raggio, y e' l'angolo
@@ -2267,11 +2245,11 @@ $.elycharts.highlightmanager = {
                 d = 90;
               path = [ [ 'SLICE', path[0][1], path[0][1], path[0][3] * scale[0], path[0][4], path[0][5] - d, path[0][6] + d ] ];
               common.animationStackPush(env, piece, element, common.getSVGProps(common.preparePathShow(env, path)), props.highlight.scaleSpeed, props.highlight.scaleEasing);
-
+              
             } else if (env.opt.type == 'funnel') {
               var dx = (piece.rect[2] - piece.rect[0]) * (scale[0] - 1) / 2;
               var dy = (piece.rect[3] - piece.rect[1]) * (scale[1] - 1) / 2;
-
+              
               // Specifico di un settore del funnel
               common.animationStackStart(env);
               path = [ common.movePath(env, [ path[0]], [-dx, -dy])[0],
@@ -2280,7 +2258,7 @@ $.elycharts.highlightmanager = {
                 common.movePath(env, [ path[3]], [-dx, +dy])[0],
                 path[4] ];
               common.animationStackPush(env, piece, element, common.getSVGProps(common.preparePathShow(env, path)), props.highlight.scaleSpeed, props.highlight.scaleEasing, 0, true);
-
+              
               // Se c'e' un piece precedente lo usa, altrimenti cerca un topSector per la riduzione
               pelement = false;
               if (index > 0) {
@@ -2304,7 +2282,7 @@ $.elycharts.highlightmanager = {
                 common.animationStackPush(env, ppiece, pelement, common.getSVGProps(common.preparePathShow(env, ppath)), props.highlight.scaleSpeed, props.highlight.scaleEasing, 0, true);
                 env.highlighted.push({piece : ppiece, cfg : props.highlight});
               }
-
+              
               // Se c'e' un piece successivo lo usa, altrimenti cerca un bottomSector per la riduzione
               pelement = false;
               if (index < mouseAreaData.pieces[i].paths.length - 1) {
@@ -2328,11 +2306,11 @@ $.elycharts.highlightmanager = {
                 common.animationStackPush(env, ppiece, pelement, common.getSVGProps(common.preparePathShow(env, ppath)), props.highlight.scaleSpeed, props.highlight.scaleEasing, 0, true);
                 env.highlighted.push({piece : ppiece, cfg : props.highlight});
               }
-
+              
               common.animationStackEnd(env);
             }
             /* Con scale non va bene
-            if (!attr.scale)
+            if (!attr.scale) 
               attr.scale = [1, 1];
             element.attr({scale : [scale[0], scale[1]]}); */
           }
@@ -2347,17 +2325,13 @@ $.elycharts.highlightmanager = {
             path = common.movePath(env, path, offset);
             common.animationStackPush(env, piece, element, common.getSVGProps(common.preparePathShow(env, path)), props.highlight.moveSpeed, props.highlight.moveEasing);
           }
-
+          
           //env.highlighted.push({element : element, attr : attr});
           env.highlighted.push({piece : piece, cfg : props.highlight});
-
+          
           if (props.highlight.overlayProps) {
-            // NOTA: path e' il path modificato dai precedenti (cosi' l'overlay tiene conto della cosa), deve guardare anche a newattr
             //BIND: mouseAreaData.listenerDisabled = true;
-            element = common.showPath(env, path);
-            if (newattr)
-              element.attr(newattr);
-            element.attr(props.highlight.overlayProps);
+            element = common.showPath(env, path).attr(props.highlight.overlayProps);
             //BIND: $(element.node).unbind().mouseover(mouseAreaData.mouseover).mouseout(mouseAreaData.mouseout);
             // Se metto immediatamente il mouseAreaData.listenerDisabled poi va comunque un mouseout dalla vecchia area e va
             // in loop. TODO Rivedere e sistemare anche per tooltip
@@ -2367,7 +2341,7 @@ $.elycharts.highlightmanager = {
           }
         }
       }
-
+    
     if (env.opt.features.highlight.indexHighlight && env.opt.type == 'line') {
       var t = env.opt.features.highlight.indexHighlight;
       if (t == 'auto')
@@ -2376,13 +2350,13 @@ $.elycharts.highlightmanager = {
       var delta1 = (env.opt.width - env.opt.margins[3] - env.opt.margins[1]) / (env.opt.labels.length > 0 ? env.opt.labels.length : 1);
       var delta2 = (env.opt.width - env.opt.margins[3] - env.opt.margins[1]) / (env.opt.labels.length > 1 ? env.opt.labels.length - 1 : 1);
       var lineCenter = true;
-
+      
       switch (t) {
         case 'bar':
           path = [ ['RECT', env.opt.margins[3] + index * delta1, env.opt.margins[0] ,
             env.opt.margins[3] + (index + 1) * delta1, env.opt.height - env.opt.margins[2] ] ];
           break;
-
+        
         case 'line':
           lineCenter = false;
         case 'barline':
@@ -2398,17 +2372,22 @@ $.elycharts.highlightmanager = {
       }
     }
   },
-
+  
   onMouseOut : function(env, serie, index, mouseAreaData) {
-    this.removeHighlighted(env, true);
+    while (env.highlighted.length > 0) {
+      var o = env.highlighted.pop();
+      if (o.piece)
+        common.animationStackPush(env, o.piece, o.piece.element, common.getPieceFullAttr(env, o.piece), o.cfg.restoreSpeed, o.cfg.restoreEasing, 0, true);
+      else
+        o.element.remove();
+    }
   }
 
-};
+}
 
 $.elycharts.featuresmanager.register($.elycharts.highlightmanager, 21);
 
 })(jQuery);
-/********* Source File: src/elycharts_manager_label.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -2542,7 +2521,6 @@ $.elycharts.labelmanager = {
 $.elycharts.featuresmanager.register($.elycharts.labelmanager, 5);
 
 })(jQuery);
-/********* Source File: src/elycharts_manager_legend.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -2686,7 +2664,6 @@ $.elycharts.legendmanager = {
 $.elycharts.featuresmanager.register($.elycharts.legendmanager, 90);
 
 })(jQuery);
-/********* Source File: src/elycharts_manager_mouse.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -2911,7 +2888,6 @@ $.elycharts.mousemanager = {
 $.elycharts.featuresmanager.register($.elycharts.mousemanager, 0);
 
 })(jQuery);
-/********* Source File: src/elycharts_manager_shadow.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -2966,7 +2942,6 @@ $.elycharts.shadowmanager = {
 $.elycharts.featuresmanager.register($.elycharts.shadowmanager, 5);
 
 })(jQuery);
-/********* Source File: src/elycharts_manager_tooltip.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -3093,7 +3068,7 @@ $.elycharts.tooltipmanager = {
     var tip = false;
     if (env.opt.tooltips) {
       if (typeof env.opt.tooltips == 'function')
-        tip = env.opt.tooltips(env, serie, index, serie && env.opt.values[serie] && env.opt.values[serie][index] ? env.opt.values[serie][index] : false, env.opt.labels && env.opt.labels[index] ? env.opt.labels[index] : false);
+        tip = env.opt.tooltips(serie, index, env.opt.values, serie && env.opt.values[serie] && env.opt.values[serie][index] ? env.opt.values[serie][index] : false);
       else {
         if (serie && env.opt.tooltips[serie] && env.opt.tooltips[serie][index])
           tip = env.opt.tooltips[serie][index];
@@ -3171,7 +3146,6 @@ $.elycharts.tooltipmanager = {
 $.elycharts.featuresmanager.register($.elycharts.tooltipmanager, 20);
 
 })(jQuery);
-/********* Source File: src/elycharts_chart_barline.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -3258,7 +3232,6 @@ $.elycharts.barline = {
 };
 
 })(jQuery);
-/********* Source File: src/elycharts_chart_funnel.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -3387,7 +3360,6 @@ $.elycharts.funnel = {
 };
 
 })(jQuery);
-/********* Source File: src/elycharts_chart_line.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
@@ -3590,7 +3562,6 @@ $.elycharts.line = {
       props = common.areaProps(env, 'Series', serie);
       plot = plots[serie];
 
-      // TODO Settare una props in questo modo potrebbe incasinare la gestione degli update parziali (se iso "lineCenter: auto" e passo da un grafico con indexCenter = bar a uno con indexCenter = line)
       if (props.lineCenter && props.lineCenter == 'auto')
         props.lineCenter = (env.indexCenter == 'bar');
       else if (props.lineCenter && env.indexCenter == 'line')
@@ -3698,138 +3669,69 @@ $.elycharts.line = {
       var labelsCenter = props.labelsCenter;
       if (labelsCenter == 'auto')
         labelsCenter = (env.indexCenter == 'bar');
+      var hideLabelsUntilX = 0; // Used for labelsHideCovered
 
-      if (axis.x && axis.x.props.labels) {
-        // used in case of labelsHideCovered, contains a "rotated" representation of the rect coordinates occupied by the last shown label
-        var lastShownLabelRect = false;
-        // labelsAnchor is "auto" by default. Can be "start","middle" or "end". If "auto" then it is automatically set depending on labelsRotate.
-        var labelsAnchor = axis.x.props.labelsAnchor || 'auto';
-        // Automatic labelsAnchor is "middle" on no rotation, otherwise the anchor is the higher side of the label.
-        if (labelsAnchor == 'auto')
-          labelsAnchor = axis.x.props.labelsRotate > 0 ? "start" : (axis.x.props.labelsRotate == 0 ? "middle" : "end");
-        // labelsPos is "auto" by default. Can be "start", "middle" or "end". If "auto" then it is automatically set depending on labelsCenter and labelsRotate and labelsAnchor.
-        var labelsPos = axis.x.props.labelsPos || 'auto';
-        // in labelsCenter (bar) it is middle when there is no rotation, equals to labelsAnchor on rotation.
-        // in !labelsCenter (line) is is always 'start';
-        if (labelsPos == 'auto')
-          labelsPos = labelsCenter ? (axis.x.props.labelsRotate == 0 ? labelsAnchor : 'middle') : 'start';
-              
+      if (axis.x && axis.x.props.labels)
         for (i = 0; i < labels.length; i++) 
-          if ((typeof labels[i] != 'boolean' && labels[i] != null) || labels[i]) {
+          if (labels[i]) {
 
-            if (!axis.x.props.labelsSkip || i >= axis.x.props.labelsSkip) {
+            if (axis.x.props.labelsSkip && i < axis.x.props.labelsSkip)
+              labels[i] = false;
+            else if (typeof labels[i] != 'boolean' || labels[i]) {
               val = labels[i];
-              
               if (axis.x.props.labelsFormatHandler)
                 val = axis.x.props.labelsFormatHandler(val);
-              txt = (axis.x.props.prefix ? axis.x.props.prefix : "") + val + (axis.x.props.suffix ? axis.x.props.suffix : "");
-
+              txt = (axis.x.props.prefix ? axis.x.props.prefix : "") + labels[i] + (axis.x.props.suffix ? axis.x.props.suffix : "");
               labx = opt.margins[3] + i * (labelsCenter ? deltaBarX : deltaX) + (axis.x.props.labelsMargin ? axis.x.props.labelsMargin : 0);
-              if (labelsPos == 'middle') labx += (labelsCenter ? deltaBarX : deltaX) / 2;
-              if (labelsPos == 'end') labx += (labelsCenter ? deltaBarX : deltaX);
-
+              if (axis.x.props.labelsPos && axis.x.props.labelsPos != 'start')
+                labx += axis.x.props.labelsPos == 'middle' ? (labelsCenter ? deltaBarX : deltaX) / 2 : (labelsCenter ? deltaBarX : deltaX);
               laby = opt.height - opt.margins[2] + axis.x.props.labelsDistance;
               labe = paper.text(labx, laby, txt).attr(axis.x.props.labelsProps).toBack();
-
-              labe.attr({"text-anchor" : labelsAnchor});
-              
-              // will contain the boundingbox size, or false if it is hidden.
-              var boundingbox = false;
-              var bbox = labe.getBBox();
-              var p1 = {x: bbox.x, y: bbox.y};
-              var p2 = {x: bbox.x+bbox.width, y: bbox.y+bbox.height};
-              var o1 = {x: labx, y: laby};
-              
-              rotate = function (p, rad) {
-                var X = p.x * Math.cos(rad) - p.y * Math.sin(rad),
-                    Y = p.x * Math.sin(rad) + p.y * Math.cos(rad);
-                return {x: X, y: Y};
-              }; 
-              // calculate collision between non rotated rects with vertext p1-p2 and t1-t2
-              // this algorythm works only for horizontal rects (alpha = 0)
-              // "dist" is the length added as a margin to the rects before collision detection
-              collide = function(r1,r2,dist) {
-                xor = function(a,b) {
-                  return ( a || b ) && !( a && b );
-                }
-                if (r1.alpha != r2.alpha) throw "collide doens't support rects with different rotations";
-                var r1p1r = rotate({x: r1.p1.x-dist, y:r1.p1.y-dist}, -r1.alpha);
-                var r1p2r = rotate({x: r1.p2.x+dist, y:r1.p2.y+dist}, -r1.alpha);
-                var r2p1r = rotate({x: r2.p1.x-dist, y:r2.p1.y-dist}, -r2.alpha);
-                var r2p2r = rotate({x: r2.p2.x+dist, y:r2.p2.y+dist}, -r2.alpha);
-                return !xor(Math.min(r1p1r.x,r1p2r.x) > Math.max(r2p1r.x,r2p2r.x), Math.max(r1p1r.x,r1p2r.x) < Math.min(r2p1r.x,r2p2r.x)) &&
-                        !xor(Math.min(r1p1r.y,r1p2r.y) > Math.max(r2p1r.y,r2p2r.y), Math.max(r1p1r.y,r1p2r.y) < Math.min(r2p1r.y,r2p2r.y));
-              }
-              // compute equivalent orizontal rotated rect
-              rotated = function(rect, origin, alpha) {
-                translate = function (p1, p2) {
-                  return {x: p1.x+p2.x, y: p1.y+p2.y};
-                };
-                negate = function(p1) {
-                  return {x: -p1.x, y: -p1.y};
-                };
-                var p1trt = translate(rotate(translate(rect.p1,negate(origin)), alpha),origin);
-                var p2trt = translate(rotate(translate(rect.p2,negate(origin)), alpha),origin);
-                return { p1: p1trt, p2: p2trt, alpha: rect.alpha+alpha };
-              }
-              bbox = function(rect) {
-                if (rect.alpha == 0) {
-                  return { x: rect.p1.x, y: rect.p1.y, width: rect.p2.x-rect.p1.x, height: rect.p2.y-rect.p1.y };
-                } else {
-                  var points = [];
-                  points.push({ x: 0, y: 0 });
-                  points.push({ x: rect.p2.x-rect.p1.x, y: 0 });
-                  points.push({ x: 0, y: rect.p2.y-rect.p1.y });
-                  points.push({ x: rect.p2.x-rect.p1.x, y: rect.p2.y-rect.p1.y });
-                  var bb = [];
-                  bb['left'] = 0; bb['right'] = 0; bb['top'] = 0; bb['bottom'] = 0;
-                  for (_px = 0; _px < points.length; _px++) {
-                    var p = points[_px];
-                    var newX = parseInt((p.x * Math.cos(rect.alpha)) + (p.y * Math.sin(rect.alpha)));
-                    var newY = parseInt((p.x * Math.sin(rect.alpha)) + (p.y * Math.cos(rect.alpha)));
-                    bb['left'] = Math.min(bb['left'], newX);
-                    bb['right'] = Math.max(bb['right'], newX);
-                    bb['top'] = Math.min(bb['top'], newY);
-                    bb['bottom'] = Math.max(bb['bottom'], newY);
-                  }
-                  var newWidth = parseInt(Math.abs(bb['right'] - bb['left']));
-                  var newHeight = parseInt(Math.abs(bb['bottom'] - bb['top']));
-                  var newX = ((rect.p1.x + rect.p2.x) / 2) - newWidth / 2;
-                  var newY = ((rect.p1.y + rect.p2.y) / 2) - newHeight / 2;
-                  return { x: newX, y: newY, width: newWidth, height: newHeight };
-                }
-              }
-
-              var alpha = Raphael.rad(axis.x.props.labelsRotate);
-              // compute used "rect" so to be able to check if there is overlapping with previous ones.
-              var rect = rotated({p1: p1, p2: p2, alpha: 0}, o1, alpha);
-      
-              //console.log('bbox ',p1, p2, rect, props.nx, val, rect.p1, rect.p2, rect.alpha, boundingbox, opt.width);
-              // se collide con l'ultimo mostrato non lo mostro.
-              var dist = axis.x.props.labelsMarginRight ? axis.x.props.labelsMarginRight / 2 : 0;
-              if (axis.x.props.labelsHideCovered && lastShownLabelRect && collide(rect, lastShownLabelRect, dist)) {
-              	labe.hide();
-              	labels[i] = false;
+              var startlabe, endlabe; // Used for labelsHideCovered
+              if (axis.x.props.labelsAnchor && axis.x.props.labelsAnchor == "start") {
+                // label not rotated buth with a labelsAnchor
+                labe.attr({"text-anchor" : "start"});
+                startlabe = labx;
+                endlabe = labx + labe.getBBox().width + (axis.x.props.labelsMargin ? axis.x.props.labelsMargin : 0) + (axis.x.props.labelsMarginRight ? axis.x.props.labelsMarginRight : 0);
               } else {
-                boundingbox = bbox(rect);
-                // Manage label overflow
-                if (props.nx == 'auto' && (boundingbox.x < 0 || boundingbox.x+boundingbox.width > opt.width)) {
-                  labe.hide();
-                  labels[i] = false;
-                } else {
-                  lastShownLabelRect = rect;
-                }
+                // Manages labelsHideCovered with labelsAnchor  = 'middle' (default)
+                var deltalabe = (labe.getBBox().width + (axis.x.props.labelsMargin ? axis.x.props.labelsMargin : 0) + (axis.x.props.labelsMarginRight ? axis.x.props.labelsMarginRight : 0)) / 2;
+                startlabe = labx - deltalabe;
+                endlabe = labx + deltalabe;
               }
 
-              // Apply rotation to the element.
+              //console.warn(txt, labx, startlabe, endlabe, labe.getBBox().width, hideLabelsUntilX);
+
               if (axis.x.props.labelsRotate) {
-                labe.rotate(axis.x.props.labelsRotate, labx, laby).toBack();
+                // Rotazione label (disable labelsHideCovered)
+                labe.attr({"text-anchor" : axis.x.props.labelsRotate > 0 ? "start" : "end"}).rotate(axis.x.props.labelsRotate, labx, laby).toBack();
+                startlabe = -9999;
+                endlabe = -9999;
               }
+
+              // Manage label overflow
+              if (startlabe > -9999 && props.nx == 'auto') {
+                if (endlabe > opt.width)
+                  // Il label has overflow on the right => delete it (if nx = auto)
+                  labels[i] = false;
+                else if (startlabe < 0)
+                  // Il label has overflow on the left => delete it (if nx = auto and labelsAnchor != start)
+                  labels[i] = false;
+              }
+
+              // Manage labelsHideCovered
+              if (labels[i] != false && axis.x.props.labelsHideCovered  && endlabe > 0) {
+                if (hideLabelsUntilX == 0 || startlabe > hideLabelsUntilX)
+                  hideLabelsUntilX = endlabe;
+                else
+                  labels[i] = false;
+              }
+              if (labels[i] == false)
+                labe.hide();
 
               paths.push({ path : [ [ 'RELEMENT', labe ] ], attr : false });
             }
           }
-      }
       pieces.push({ section : 'Axis', serie : 'x', subSection : 'Label', paths : paths });
           
       // Title X Axis
@@ -3857,7 +3759,7 @@ $.elycharts.line = {
               if (!axis[j].props.labelsProps["text-anchor"])
                 axis[j].props.labelsProps["text-anchor"] = "end";
             }
-            if (axis[j].props.labelsAnchor && axis[j].props.labelsAnchor != 'auto')
+            if (axis[j].props.labelsAnchor)
               axis[j].props.labelsProps["text-anchor"] = axis[j].props.labelsAnchor;
             // NOTE: Parenthesis () around division are useful to keep right number precision
             val = (axis[j].min + (i * ((axis[j].max - axis[j].min) / props.ny)));
@@ -3932,7 +3834,7 @@ $.elycharts.line = {
             forceBorderX1 && i == 0 || // Always show first line if forced
             forceBorderX2 && i == nx || // Always show last line if forced
             drawV && ( // To show other lines draw must be true
-              (props.nx != 'auto' && i > 0 && i < nx) || // If nx = [number] show other lines (first and last are managed above with forceBorder)
+              (props.nx != 'auto' && i > 0 && i < ny) || // If nx = [number] show other lines (first and last are managed above with forceBorder)
               (props.nx == 'auto' && (typeof labels[i] != 'boolean' || labels[i])) // if nx = 'auto' show all lines if a label is associated
             )
             // Show all lines if props.nx is a number, or if label != false, AND draw must be true
@@ -3986,7 +3888,6 @@ $.elycharts.line = {
 }
 
 })(jQuery);
-/********* Source File: src/elycharts_chart_pie.js*********/
 /**********************************************************************
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.

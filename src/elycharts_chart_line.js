@@ -200,7 +200,6 @@ $.elycharts.line = {
       props = common.areaProps(env, 'Series', serie);
       plot = plots[serie];
 
-      // TODO Settare una props in questo modo potrebbe incasinare la gestione degli update parziali (se iso "lineCenter: auto" e passo da un grafico con indexCenter = bar a uno con indexCenter = line)
       if (props.lineCenter && props.lineCenter == 'auto')
         props.lineCenter = (env.indexCenter == 'bar');
       else if (props.lineCenter && env.indexCenter == 'line')
@@ -308,138 +307,69 @@ $.elycharts.line = {
       var labelsCenter = props.labelsCenter;
       if (labelsCenter == 'auto')
         labelsCenter = (env.indexCenter == 'bar');
+      var hideLabelsUntilX = 0; // Used for labelsHideCovered
 
-      if (axis.x && axis.x.props.labels) {
-        // used in case of labelsHideCovered, contains a "rotated" representation of the rect coordinates occupied by the last shown label
-        var lastShownLabelRect = false;
-        // labelsAnchor is "auto" by default. Can be "start","middle" or "end". If "auto" then it is automatically set depending on labelsRotate.
-        var labelsAnchor = axis.x.props.labelsAnchor || 'auto';
-        // Automatic labelsAnchor is "middle" on no rotation, otherwise the anchor is the higher side of the label.
-        if (labelsAnchor == 'auto')
-          labelsAnchor = axis.x.props.labelsRotate > 0 ? "start" : (axis.x.props.labelsRotate == 0 ? "middle" : "end");
-        // labelsPos is "auto" by default. Can be "start", "middle" or "end". If "auto" then it is automatically set depending on labelsCenter and labelsRotate and labelsAnchor.
-        var labelsPos = axis.x.props.labelsPos || 'auto';
-        // in labelsCenter (bar) it is middle when there is no rotation, equals to labelsAnchor on rotation.
-        // in !labelsCenter (line) is is always 'start';
-        if (labelsPos == 'auto')
-          labelsPos = labelsCenter ? (axis.x.props.labelsRotate == 0 ? labelsAnchor : 'middle') : 'start';
-              
+      if (axis.x && axis.x.props.labels)
         for (i = 0; i < labels.length; i++) 
-          if ((typeof labels[i] != 'boolean' && labels[i] != null) || labels[i]) {
+          if (labels[i]) {
 
-            if (!axis.x.props.labelsSkip || i >= axis.x.props.labelsSkip) {
+            if (axis.x.props.labelsSkip && i < axis.x.props.labelsSkip)
+              labels[i] = false;
+            else if (typeof labels[i] != 'boolean' || labels[i]) {
               val = labels[i];
-              
               if (axis.x.props.labelsFormatHandler)
                 val = axis.x.props.labelsFormatHandler(val);
-              txt = (axis.x.props.prefix ? axis.x.props.prefix : "") + val + (axis.x.props.suffix ? axis.x.props.suffix : "");
-
+              txt = (axis.x.props.prefix ? axis.x.props.prefix : "") + labels[i] + (axis.x.props.suffix ? axis.x.props.suffix : "");
               labx = opt.margins[3] + i * (labelsCenter ? deltaBarX : deltaX) + (axis.x.props.labelsMargin ? axis.x.props.labelsMargin : 0);
-              if (labelsPos == 'middle') labx += (labelsCenter ? deltaBarX : deltaX) / 2;
-              if (labelsPos == 'end') labx += (labelsCenter ? deltaBarX : deltaX);
-
+              if (axis.x.props.labelsPos && axis.x.props.labelsPos != 'start')
+                labx += axis.x.props.labelsPos == 'middle' ? (labelsCenter ? deltaBarX : deltaX) / 2 : (labelsCenter ? deltaBarX : deltaX);
               laby = opt.height - opt.margins[2] + axis.x.props.labelsDistance;
               labe = paper.text(labx, laby, txt).attr(axis.x.props.labelsProps).toBack();
-
-              labe.attr({"text-anchor" : labelsAnchor});
-              
-              // will contain the boundingbox size, or false if it is hidden.
-              var boundingbox = false;
-              var bbox = labe.getBBox();
-              var p1 = {x: bbox.x, y: bbox.y};
-              var p2 = {x: bbox.x+bbox.width, y: bbox.y+bbox.height};
-              var o1 = {x: labx, y: laby};
-              
-              rotate = function (p, rad) {
-                var X = p.x * Math.cos(rad) - p.y * Math.sin(rad),
-                    Y = p.x * Math.sin(rad) + p.y * Math.cos(rad);
-                return {x: X, y: Y};
-              }; 
-              // calculate collision between non rotated rects with vertext p1-p2 and t1-t2
-              // this algorythm works only for horizontal rects (alpha = 0)
-              // "dist" is the length added as a margin to the rects before collision detection
-              collide = function(r1,r2,dist) {
-                xor = function(a,b) {
-                  return ( a || b ) && !( a && b );
-                }
-                if (r1.alpha != r2.alpha) throw "collide doens't support rects with different rotations";
-                var r1p1r = rotate({x: r1.p1.x-dist, y:r1.p1.y-dist}, -r1.alpha);
-                var r1p2r = rotate({x: r1.p2.x+dist, y:r1.p2.y+dist}, -r1.alpha);
-                var r2p1r = rotate({x: r2.p1.x-dist, y:r2.p1.y-dist}, -r2.alpha);
-                var r2p2r = rotate({x: r2.p2.x+dist, y:r2.p2.y+dist}, -r2.alpha);
-                return !xor(Math.min(r1p1r.x,r1p2r.x) > Math.max(r2p1r.x,r2p2r.x), Math.max(r1p1r.x,r1p2r.x) < Math.min(r2p1r.x,r2p2r.x)) &&
-                        !xor(Math.min(r1p1r.y,r1p2r.y) > Math.max(r2p1r.y,r2p2r.y), Math.max(r1p1r.y,r1p2r.y) < Math.min(r2p1r.y,r2p2r.y));
-              }
-              // compute equivalent orizontal rotated rect
-              rotated = function(rect, origin, alpha) {
-                translate = function (p1, p2) {
-                  return {x: p1.x+p2.x, y: p1.y+p2.y};
-                };
-                negate = function(p1) {
-                  return {x: -p1.x, y: -p1.y};
-                };
-                var p1trt = translate(rotate(translate(rect.p1,negate(origin)), alpha),origin);
-                var p2trt = translate(rotate(translate(rect.p2,negate(origin)), alpha),origin);
-                return { p1: p1trt, p2: p2trt, alpha: rect.alpha+alpha };
-              }
-              bbox = function(rect) {
-                if (rect.alpha == 0) {
-                  return { x: rect.p1.x, y: rect.p1.y, width: rect.p2.x-rect.p1.x, height: rect.p2.y-rect.p1.y };
-                } else {
-                  var points = [];
-                  points.push({ x: 0, y: 0 });
-                  points.push({ x: rect.p2.x-rect.p1.x, y: 0 });
-                  points.push({ x: 0, y: rect.p2.y-rect.p1.y });
-                  points.push({ x: rect.p2.x-rect.p1.x, y: rect.p2.y-rect.p1.y });
-                  var bb = [];
-                  bb['left'] = 0; bb['right'] = 0; bb['top'] = 0; bb['bottom'] = 0;
-                  for (_px = 0; _px < points.length; _px++) {
-                    var p = points[_px];
-                    var newX = parseInt((p.x * Math.cos(rect.alpha)) + (p.y * Math.sin(rect.alpha)));
-                    var newY = parseInt((p.x * Math.sin(rect.alpha)) + (p.y * Math.cos(rect.alpha)));
-                    bb['left'] = Math.min(bb['left'], newX);
-                    bb['right'] = Math.max(bb['right'], newX);
-                    bb['top'] = Math.min(bb['top'], newY);
-                    bb['bottom'] = Math.max(bb['bottom'], newY);
-                  }
-                  var newWidth = parseInt(Math.abs(bb['right'] - bb['left']));
-                  var newHeight = parseInt(Math.abs(bb['bottom'] - bb['top']));
-                  var newX = ((rect.p1.x + rect.p2.x) / 2) - newWidth / 2;
-                  var newY = ((rect.p1.y + rect.p2.y) / 2) - newHeight / 2;
-                  return { x: newX, y: newY, width: newWidth, height: newHeight };
-                }
-              }
-
-              var alpha = Raphael.rad(axis.x.props.labelsRotate);
-              // compute used "rect" so to be able to check if there is overlapping with previous ones.
-              var rect = rotated({p1: p1, p2: p2, alpha: 0}, o1, alpha);
-      
-              //console.log('bbox ',p1, p2, rect, props.nx, val, rect.p1, rect.p2, rect.alpha, boundingbox, opt.width);
-              // se collide con l'ultimo mostrato non lo mostro.
-              var dist = axis.x.props.labelsMarginRight ? axis.x.props.labelsMarginRight / 2 : 0;
-              if (axis.x.props.labelsHideCovered && lastShownLabelRect && collide(rect, lastShownLabelRect, dist)) {
-              	labe.hide();
-              	labels[i] = false;
+              var startlabe, endlabe; // Used for labelsHideCovered
+              if (axis.x.props.labelsAnchor && axis.x.props.labelsAnchor == "start") {
+                // label not rotated buth with a labelsAnchor
+                labe.attr({"text-anchor" : "start"});
+                startlabe = labx;
+                endlabe = labx + labe.getBBox().width + (axis.x.props.labelsMargin ? axis.x.props.labelsMargin : 0) + (axis.x.props.labelsMarginRight ? axis.x.props.labelsMarginRight : 0);
               } else {
-                boundingbox = bbox(rect);
-                // Manage label overflow
-                if (props.nx == 'auto' && (boundingbox.x < 0 || boundingbox.x+boundingbox.width > opt.width)) {
-                  labe.hide();
-                  labels[i] = false;
-                } else {
-                  lastShownLabelRect = rect;
-                }
+                // Manages labelsHideCovered with labelsAnchor  = 'middle' (default)
+                var deltalabe = (labe.getBBox().width + (axis.x.props.labelsMargin ? axis.x.props.labelsMargin : 0) + (axis.x.props.labelsMarginRight ? axis.x.props.labelsMarginRight : 0)) / 2;
+                startlabe = labx - deltalabe;
+                endlabe = labx + deltalabe;
               }
 
-              // Apply rotation to the element.
+              //console.warn(txt, labx, startlabe, endlabe, labe.getBBox().width, hideLabelsUntilX);
+
               if (axis.x.props.labelsRotate) {
-                labe.rotate(axis.x.props.labelsRotate, labx, laby).toBack();
+                // Rotazione label (disable labelsHideCovered)
+                labe.attr({"text-anchor" : axis.x.props.labelsRotate > 0 ? "start" : "end"}).rotate(axis.x.props.labelsRotate, labx, laby).toBack();
+                startlabe = -9999;
+                endlabe = -9999;
               }
+
+              // Manage label overflow
+              if (startlabe > -9999 && props.nx == 'auto') {
+                if (endlabe > opt.width)
+                  // Il label has overflow on the right => delete it (if nx = auto)
+                  labels[i] = false;
+                else if (startlabe < 0)
+                  // Il label has overflow on the left => delete it (if nx = auto and labelsAnchor != start)
+                  labels[i] = false;
+              }
+
+              // Manage labelsHideCovered
+              if (labels[i] != false && axis.x.props.labelsHideCovered  && endlabe > 0) {
+                if (hideLabelsUntilX == 0 || startlabe > hideLabelsUntilX)
+                  hideLabelsUntilX = endlabe;
+                else
+                  labels[i] = false;
+              }
+              if (labels[i] == false)
+                labe.hide();
 
               paths.push({ path : [ [ 'RELEMENT', labe ] ], attr : false });
             }
           }
-      }
       pieces.push({ section : 'Axis', serie : 'x', subSection : 'Label', paths : paths });
           
       // Title X Axis
@@ -467,7 +397,7 @@ $.elycharts.line = {
               if (!axis[j].props.labelsProps["text-anchor"])
                 axis[j].props.labelsProps["text-anchor"] = "end";
             }
-            if (axis[j].props.labelsAnchor && axis[j].props.labelsAnchor != 'auto')
+            if (axis[j].props.labelsAnchor)
               axis[j].props.labelsProps["text-anchor"] = axis[j].props.labelsAnchor;
             // NOTE: Parenthesis () around division are useful to keep right number precision
             val = (axis[j].min + (i * ((axis[j].max - axis[j].min) / props.ny)));
@@ -542,7 +472,7 @@ $.elycharts.line = {
             forceBorderX1 && i == 0 || // Always show first line if forced
             forceBorderX2 && i == nx || // Always show last line if forced
             drawV && ( // To show other lines draw must be true
-              (props.nx != 'auto' && i > 0 && i < nx) || // If nx = [number] show other lines (first and last are managed above with forceBorder)
+              (props.nx != 'auto' && i > 0 && i < ny) || // If nx = [number] show other lines (first and last are managed above with forceBorder)
               (props.nx == 'auto' && (typeof labels[i] != 'boolean' || labels[i])) // if nx = 'auto' show all lines if a label is associated
             )
             // Show all lines if props.nx is a number, or if label != false, AND draw must be true

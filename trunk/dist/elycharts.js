@@ -676,19 +676,19 @@ function _normalizeOptionsColor($section, $type, $fullopt) {
       $section.plotProps = {};
     
     if ($type == 'line') {
-      if ($section.plotProps && !$section.plotProps.stroke)
+      if ($section.plotProps && !$section.plotProps.stroke && !$fullopt.defaultSeries.plotProps.stroke)
         $section.plotProps.stroke = color;
     } else {
-      if ($section.plotProps && !$section.plotProps.fill)
+      if ($section.plotProps && !$section.plotProps.fill && !$fullopt.defaultSeries.plotProps.fill)
         $section.plotProps.fill = color;
     }
       
     if (!$section.tooltip)
       $section.tooltip = {};
     // Is disabled in defaultSetting i should not set color
-     if (!$section.tooltip.frameProps && $fullopt.defaultSeries.tooltip.frameProps)
+    if (!$section.tooltip.frameProps && $fullopt.defaultSeries.tooltip.frameProps)
       $section.tooltip.frameProps = {};
-    if ($section.tooltip && $section.tooltip.frameProps && !$section.tooltip.frameProps.stroke)
+    if ($section.tooltip && $section.tooltip.frameProps && !$section.tooltip.frameProps.stroke && !$fullopt.defaultSeries.tooltip.frameProps.stroke)
       $section.tooltip.frameProps.stroke = color;
       
     if (!$section.legend)
@@ -701,12 +701,12 @@ function _normalizeOptionsColor($section, $type, $fullopt) {
     if ($type == 'line') {
       if (!$section.dotProps)
         $section.dotProps = {};
-      if ($section.dotProps && !$section.dotProps.fill)
+      if ($section.dotProps && !$section.dotProps.fill && !$fullopt.defaultSeries.dotProps.fill)
         $section.dotProps.fill = color;
         
       if (!$section.fillProps)
         $section.fillProps = {};
-      if ($section.fillProps && !$section.fillProps.fill)
+      if ($section.fillProps && !$section.fillProps.fill && !$fullopt.defaultSeries.fillProps.fill)
         $section.fillProps.fill = color;
     }
   }

@@ -3386,9 +3386,8 @@ $.elycharts.line = {
               // will contain the boundingbox size, or false if it is hidden.
               var boundingbox = false;
               var bbox = labe.getBBox();
-              var dist = axis.x.props.labelsMarginRight ? axis.x.props.labelsMarginRight / 2 : 0;
-              var p1 = {x: bbox.x-dist, y: bbox.y-dist};
-              var p2 = {x: bbox.x+bbox.width+dist, y: bbox.y+bbox.height+dist};
+              var p1 = {x: bbox.x, y: bbox.y};
+              var p2 = {x: bbox.x+bbox.width, y: bbox.y+bbox.height};
               var o1 = {x: labx, y: laby};
               
               rotate = function (p, rad) {
@@ -3398,15 +3397,16 @@ $.elycharts.line = {
               }; 
               // calculate collision between non rotated rects with vertext p1-p2 and t1-t2
               // this algorythm works only for horizontal rects (alpha = 0)
-              collide = function(r1,r2) {
+              // "dist" is the length added as a margin to the rects before collision detection
+              collide = function(r1,r2,dist) {
                 xor = function(a,b) {
                   return ( a || b ) && !( a && b );
                 }
                 if (r1.alpha != r2.alpha) throw "collide doens't support rects with different rotations";
-                var r1p1r = rotate(r1.p1, -r1.alpha);
-                var r1p2r = rotate(r1.p2, -r1.alpha);
-                var r2p1r = rotate(r2.p1, -r2.alpha);
-                var r2p2r = rotate(r2.p2, -r2.alpha);
+                var r1p1r = rotate({x: r1.p1.x-dist, y:r1.p1.y-dist}, -r1.alpha);
+                var r1p2r = rotate({x: r1.p2.x+dist, y:r1.p2.y+dist}, -r1.alpha);
+                var r2p1r = rotate({x: r2.p1.x-dist, y:r2.p1.y-dist}, -r2.alpha);
+                var r2p2r = rotate({x: r2.p2.x+dist, y:r2.p2.y+dist}, -r2.alpha);
                 return !xor(Math.min(r1p1r.x,r1p2r.x) > Math.max(r2p1r.x,r2p2r.x), Math.max(r1p1r.x,r1p2r.x) < Math.min(r2p1r.x,r2p2r.x)) &&
                         !xor(Math.min(r1p1r.y,r1p2r.y) > Math.max(r2p1r.y,r2p2r.y), Math.max(r1p1r.y,r1p2r.y) < Math.min(r2p1r.y,r2p2r.y));
               }
@@ -3454,14 +3454,18 @@ $.elycharts.line = {
               // compute used "rect" so to be able to check if there is overlapping with previous ones.
               var rect = rotated({p1: p1, p2: p2, alpha: 0}, o1, alpha);
       
+              //console.log('bbox ',p1, p2, rect, props.nx, val, rect.p1, rect.p2, rect.alpha, boundingbox, opt.width);
               // se collide con l'ultimo mostrato non lo mostro.
-              if (axis.x.props.labelsHideCovered && lastShownLabelRect && collide(rect, lastShownLabelRect)) labe.hide();
-              else {
+              var dist = axis.x.props.labelsMarginRight ? axis.x.props.labelsMarginRight / 2 : 0;
+              if (axis.x.props.labelsHideCovered && lastShownLabelRect && collide(rect, lastShownLabelRect, dist)) {
+              	labe.hide();
+              	labels[i] = false;
+              } else {
                 boundingbox = bbox(rect);
-                // console.log('bbox ',p1, p2, rect, props.nx, val, rect.p1, rect.p2, rect.alpha, boundingbox, opt.width);
                 // Manage label overflow
                 if (props.nx == 'auto' && (boundingbox.x < 0 || boundingbox.x+boundingbox.width > opt.width)) {
                   labe.hide();
+                  labels[i] = false;
                 } else {
                   lastShownLabelRect = rect;
                 }

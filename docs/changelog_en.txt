@@ -1,5 +1,6 @@
 v2.1.4-SNAPSHOT
-- fix compatibility with Raphaeljs 2.0+ (animations didn't work due to animateWith signature/behaviour changes)
+- fix compatibility with jQuery 1.9+: $.browser.msie no more available. Switched to Raphael.VML, with the hope this was the intended check (Issue #28)
+- fix compatibility with Raphaeljs 2.0+: animations didn't work due to animateWith signature/behaviour changes (Issue #23)
 - fix for colors propagation from defaultSeries to single serie (Issue #11)
 - added "auto" modes for labelsAnchor and labelsPos so that most use cases it will simply set sensible values for them based on labelsCenter/labelsRotate
 - added support for labels hiding (for overlapping and *horizontal* overflow) also for rotated labels 

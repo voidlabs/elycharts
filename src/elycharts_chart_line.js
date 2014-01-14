@@ -223,7 +223,7 @@ $.elycharts.line = {
               var x = Math.round((props.lineCenter ? deltaBarX / 2 : 0) + opt.margins[3] + i * (props.lineCenter ? deltaBarX : deltaX));
               var y = Math.round(opt.height - opt.margins[2] - deltaY * (d - plot.min));
               var dd = plot.from[i] > plot.max ? plot.max : (plot.from[i] < plot.min ? plot.min : plot.from[i]);
-              var yy = Math.round(opt.height - opt.margins[2] - deltaY * (dd - plot.min)) + ($.browser.msie ? 1 : 0);
+              var yy = Math.round(opt.height - opt.margins[2] - deltaY * (dd - plot.min)) + (Raphael.VML ? 1 : 0);
 
               linePath[1].push([x, y]);
 
@@ -445,7 +445,7 @@ $.elycharts.line = {
       // Title X Axis
       if (axis.x && axis.x.props.title) {
         x = opt.margins[3] + Math.floor((opt.width - opt.margins[1] - opt.margins[3]) / 2);
-        y = opt.height - opt.margins[2] + axis.x.props.titleDistance * ($.browser.msie ? axis.x.props.titleDistanceIE : 1);
+        y = opt.height - opt.margins[2] + axis.x.props.titleDistance * (Raphael.VML ? axis.x.props.titleDistanceIE : 1);
         //paper.text(x, y, axis.x.props.title).attr(axis.x.props.titleProps);
         pieces.push({ section : 'Axis', serie : 'x', subSection : 'Title', path : [ [ 'TEXT', axis.x.props.title, x, y ] ], attr : axis.x.props.titleProps });
       } else
@@ -491,9 +491,9 @@ $.elycharts.line = {
 
         if (axis[j] && axis[j].props.title) {
           if (j == 'r')
-            x = opt.width - opt.margins[1] + axis[j].props.titleDistance * ($.browser.msie ? axis[j].props.titleDistanceIE : 1);
+            x = opt.width - opt.margins[1] + axis[j].props.titleDistance * (Raphael.VML ? axis[j].props.titleDistanceIE : 1);
           else
-            x = opt.margins[3] - axis[j].props.titleDistance * ($.browser.msie ? axis[j].props.titleDistanceIE : 1);
+            x = opt.margins[3] - axis[j].props.titleDistance * (Raphael.VML ? axis[j].props.titleDistanceIE : 1);
           //paper.text(x, opt.margins[0] + Math.floor((opt.height - opt.margins[0] - opt.margins[2]) / 2), axis[j].props.title).attr(axis[j].props.titleProps).attr({rotation : j == 'l' ? 270 : 90});
           var attr = common._clone(axis[j].props.titleProps);
           attr.rotation = j == 'l' ? 270 : 90

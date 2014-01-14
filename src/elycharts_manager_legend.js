@@ -99,7 +99,7 @@ $.elycharts.legendmanager = {
         }
         
         var text = data[j];
-        var t = common.showPath(env, [ [ 'TEXT', text, x + xd, y + Math.ceil(h / 2) + ($.browser.msie ? 2 : 0) ] ]).attr({"text-anchor" : "start"}).attr(tprops); //.hide();
+        var t = common.showPath(env, [ [ 'TEXT', text, x + xd, y + Math.ceil(h / 2) + (Raphael.VML ? 2 : 0) ] ]).attr({"text-anchor" : "start"}).attr(tprops); //.hide();
         items.push(t);
         while (t.getBBox().width > (w - xd) && t.getBBox().width > 10) {
           text = text.substring(0, text.length - 1);

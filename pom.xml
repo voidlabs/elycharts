@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>elycharts</groupId>
 	<artifactId>elycharts</artifactId>
-	<version>2.1.5-SNAPSHOT</version>
+	<version>2.1.4-SNAPSHOT</version>
 	<name>Elycharts</name>
 	<packaging>pom</packaging>
 
@@ -17,10 +17,33 @@
 			<url>http://oss.sonatype.org/content/groups/public</url>
 		</pluginRepository>
 	</pluginRepositories>
+
 	<build>
 		<outputDirectory>target/</outputDirectory>
 		<testOutputDirectory>target/test-scripts</testOutputDirectory>
 		<plugins>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.6</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/extra-resources</outputDirectory>
+							<resources>
+								<resource>
+									<directory>resources</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>croche.maven</groupId>
 				<artifactId>maven-merge-file-plugin</artifactId>
@@ -38,8 +61,10 @@
 									<targetFile>dist/elycharts-full.js</targetFile>
 									<sourceDirs>
 										<sourceDir>src</sourceDir>
+										<sourceDir>${basedir}/target/extra-resources</sourceDir>
 									</sourceDirs>
 									<nameContainsOrderings>
+										<nameContainsOrdering>header</nameContainsOrdering>
 										<nameContainsOrdering>elycharts_default</nameContainsOrdering>
 										<nameContainsOrdering>elycharts_core</nameContainsOrdering>
 										<nameContainsOrdering>elycharts_manager</nameContainsOrdering>
@@ -56,14 +81,17 @@
 									<targetFile>dist/elycharts.js</targetFile>
 									<sourceDirs>
 										<sourceDir>src</sourceDir>
+										<sourceDir>${basedir}/target/extra-resources</sourceDir>
 									</sourceDirs>
 									<nameContainsOrderings>
+										<nameContainsOrdering>header</nameContainsOrdering>
 										<nameContainsOrdering>elycharts_default</nameContainsOrdering>
 										<nameContainsOrdering>elycharts_core</nameContainsOrdering>
 										<nameContainsOrdering>elycharts_manager</nameContainsOrdering>
 										<nameContainsOrdering>elycharts_chart</nameContainsOrdering>
 									</nameContainsOrderings>
 									<includes>
+										<include>header.js</include>
 										<include>elycharts_defaults.js</include>
 										<include>elycharts_core.js</include>
 										<include>elycharts_manager_anchor.js</include>
@@ -105,15 +133,12 @@
 							<excludes>
 								<exclude>*-min.js</exclude>
 								<exclude>*.min.js</exclude>
+								<exclude>*header.js</exclude>
 							</excludes>
 						</configuration>
 					</execution>
 				</executions>
-				<!-- 
-				<configuration>
-				    <sourceDirectory>src</sourceDirectory>
-				</configuration>
-				 -->
+				<!-- <configuration> <sourceDirectory>src</sourceDirectory> </configuration> -->
 			</plugin>
 		</plugins>
 	</build>

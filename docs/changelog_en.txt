@@ -1,3 +1,6 @@
+v2.1.5-SNAPSHOT
+- just prepared.. nothing new
+
 v2.1.4 (2014-01-14)
 - fix compatibility with RaphaelJs 2.0+: .rotation attribute is no more available so axis titles were not rotated (Issue #27)
 - fix compatibility with jQuery 1.9+: $.browser.msie no more available. Switched to Raphael.VML, with the hope this was the intended check (Issue #28)

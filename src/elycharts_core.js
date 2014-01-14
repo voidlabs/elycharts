@@ -950,11 +950,11 @@ $.elycharts.common = {
     var caller = this;
     var func = function() {
       var a = stack.pop();
-      caller._animationStackAnimateElement(a);
+      var anim = caller._animationStackAnimateElement(a);
       
       while (stack.length > 0) {
         var b = stack.pop();
-        caller._animationStackAnimateElement(b, a);
+        caller._animationStackAnimateElement(b, a, anim);
       }
     }
     if (delay > 0) 
@@ -963,7 +963,7 @@ $.elycharts.common = {
       func();
   },
   
-  _animationStackAnimateElement : function (a, awith) {
+  _animationStackAnimateElement : function (a, awith, awithanim) {
     //console.warn('call', a.piece.animationInProgress, a.force, a.piece.path, a.piece);
 
     if (a.force || !a.piece.animationInProgress) {
@@ -989,12 +989,29 @@ $.elycharts.common = {
         a.piece.animationInProgress = false 
       }
       
-      if (awith)
-        a.object.animateWith(awith, a.props, a.speed, a.easing ? a.easing : 'linear', onEnd);
-      else
-        a.object.animate(a.props, a.speed, a.easing ? a.easing : 'linear', onEnd);
+      if (Raphael.animation) {
+      	var anim = Raphael.animation(a.props, a.speed, a.easing ? a.easing : 'linear', onEnd);
+        if (awith) {
+          // console.warn('animateWith', awith, awithanim, anim);
+          a.object.animateWith(awith, awithanim, anim);
+        } else {
+      	  // console.warn('animate', anim);
+          a.object.animate(anim);
+        }
+      	return anim;
+      } else {
+        if (awith) {
+          // console.warn('animateWith', awith, awithanim, anim);
+          a.object.animateWith(awith, a.props, a.speed, a.easing ? a.easing : 'linear', onEnd);
+        } else {
+      	  // console.warn('animate', anim);
+          a.object.animate(a.props, a.speed, a.easing ? a.easing : 'linear', onEnd);
+        }
+        return null;
+      }
     }
     //else console.warn('SKIP', a.piece.animationInProgress, a.piece.path, a.piece);
+    return null;
   }
 }
 

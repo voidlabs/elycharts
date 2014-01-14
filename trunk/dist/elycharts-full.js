@@ -1405,11 +1405,11 @@ $.elycharts.common = {
     var caller = this;
     var func = function() {
       var a = stack.pop();
-      caller._animationStackAnimateElement(a);
+      var anim = caller._animationStackAnimateElement(a);
       
       while (stack.length > 0) {
         var b = stack.pop();
-        caller._animationStackAnimateElement(b, a);
+        caller._animationStackAnimateElement(b, a, anim);
       }
     }
     if (delay > 0) 
@@ -1418,7 +1418,7 @@ $.elycharts.common = {
       func();
   },
   
-  _animationStackAnimateElement : function (a, awith) {
+  _animationStackAnimateElement : function (a, awith, awithanim) {
     //console.warn('call', a.piece.animationInProgress, a.force, a.piece.path, a.piece);
 
     if (a.force || !a.piece.animationInProgress) {
@@ -1444,12 +1444,29 @@ $.elycharts.common = {
         a.piece.animationInProgress = false 
       }
       
-      if (awith)
-        a.object.animateWith(awith, a.props, a.speed, a.easing ? a.easing : 'linear', onEnd);
-      else
-        a.object.animate(a.props, a.speed, a.easing ? a.easing : 'linear', onEnd);
+      if (Raphael.animation) {
+      	var anim = Raphael.animation(a.props, a.speed, a.easing ? a.easing : 'linear', onEnd);
+        if (awith) {
+          // console.warn('animateWith', awith, awithanim, anim);
+          a.object.animateWith(awith, awithanim, anim);
+        } else {
+      	  // console.warn('animate', anim);
+          a.object.animate(anim);
+        }
+      	return anim;
+      } else {
+        if (awith) {
+          // console.warn('animateWith', awith, awithanim, anim);
+          a.object.animateWith(awith, a.props, a.speed, a.easing ? a.easing : 'linear', onEnd);
+        } else {
+      	  // console.warn('animate', anim);
+          a.object.animate(a.props, a.speed, a.easing ? a.easing : 'linear', onEnd);
+        }
+        return null;
+      }
     }
     //else console.warn('SKIP', a.piece.animationInProgress, a.piece.path, a.piece);
+    return null;
   }
 }
 
@@ -2644,7 +2661,7 @@ $.elycharts.legendmanager = {
         }
         
         var text = data[j];
-        var t = common.showPath(env, [ [ 'TEXT', text, x + xd, y + Math.ceil(h / 2) + ($.browser.msie ? 2 : 0) ] ]).attr({"text-anchor" : "start"}).attr(tprops); //.hide();
+        var t = common.showPath(env, [ [ 'TEXT', text, x + xd, y + Math.ceil(h / 2) + (Raphael.VML ? 2 : 0) ] ]).attr({"text-anchor" : "start"}).attr(tprops); //.hide();
         items.push(t);
         while (t.getBBox().width > (w - xd) && t.getBBox().width > 10) {
           text = text.substring(0, text.length - 1);
@@ -3613,7 +3630,7 @@ $.elycharts.line = {
               var x = Math.round((props.lineCenter ? deltaBarX / 2 : 0) + opt.margins[3] + i * (props.lineCenter ? deltaBarX : deltaX));
               var y = Math.round(opt.height - opt.margins[2] - deltaY * (d - plot.min));
               var dd = plot.from[i] > plot.max ? plot.max : (plot.from[i] < plot.min ? plot.min : plot.from[i]);
-              var yy = Math.round(opt.height - opt.margins[2] - deltaY * (dd - plot.min)) + ($.browser.msie ? 1 : 0);
+              var yy = Math.round(opt.height - opt.margins[2] - deltaY * (dd - plot.min)) + (Raphael.VML ? 1 : 0);
 
               linePath[1].push([x, y]);
 
@@ -3823,7 +3840,11 @@ $.elycharts.line = {
 
               // Apply rotation to the element.
               if (axis.x.props.labelsRotate) {
-                labe.rotate(axis.x.props.labelsRotate, labx, laby).toBack();
+                if (Raphael.animation) {
+                  labe.transform(Raphael.format('r{0},{1},{2}', axis.x.props.labelsRotate, labx, laby)).toBack();
+                } else {
+                  labe.rotate(axis.x.props.labelsRotate, labx, laby).toBack();
+                }
               }
 
               paths.push({ path : [ [ 'RELEMENT', labe ] ], attr : false });
@@ -3835,7 +3856,7 @@ $.elycharts.line = {
       // Title X Axis
       if (axis.x && axis.x.props.title) {
         x = opt.margins[3] + Math.floor((opt.width - opt.margins[1] - opt.margins[3]) / 2);
-        y = opt.height - opt.margins[2] + axis.x.props.titleDistance * ($.browser.msie ? axis.x.props.titleDistanceIE : 1);
+        y = opt.height - opt.margins[2] + axis.x.props.titleDistance * (Raphael.VML ? axis.x.props.titleDistanceIE : 1);
         //paper.text(x, y, axis.x.props.title).attr(axis.x.props.titleProps);
         pieces.push({ section : 'Axis', serie : 'x', subSection : 'Title', path : [ [ 'TEXT', axis.x.props.title, x, y ] ], attr : axis.x.props.titleProps });
       } else
@@ -3881,13 +3902,21 @@ $.elycharts.line = {
 
         if (axis[j] && axis[j].props.title) {
           if (j == 'r')
-            x = opt.width - opt.margins[1] + axis[j].props.titleDistance * ($.browser.msie ? axis[j].props.titleDistanceIE : 1);
+            x = opt.width - opt.margins[1] + axis[j].props.titleDistance * (Raphael.VML ? axis[j].props.titleDistanceIE : 1);
           else
-            x = opt.margins[3] - axis[j].props.titleDistance * ($.browser.msie ? axis[j].props.titleDistanceIE : 1);
+            x = opt.margins[3] - axis[j].props.titleDistance * (Raphael.VML ? axis[j].props.titleDistanceIE : 1);
           //paper.text(x, opt.margins[0] + Math.floor((opt.height - opt.margins[0] - opt.margins[2]) / 2), axis[j].props.title).attr(axis[j].props.titleProps).attr({rotation : j == 'l' ? 270 : 90});
           var attr = common._clone(axis[j].props.titleProps);
-          attr.rotation = j == 'l' ? 270 : 90
-          pieces.push({ section : 'Axis', serie : j, subSection : 'Title', path : [ [ 'TEXT', axis[j].props.title, x, opt.margins[0] + Math.floor((opt.height - opt.margins[0] - opt.margins[2]) / 2) ] ], attr : attr });
+          var rotation = j == 'l' ? 270 : 90;
+          var y = opt.margins[0] + Math.floor((opt.height - opt.margins[0] - opt.margins[2]) / 2);
+          // Raphael 2 does not support .rotation
+          if (Raphael.animation) {
+            var labe = paper.text(x, y, axis[j].props.title).attr(attr).transform(Raphael.format('r{0}', rotation)).toBack();
+            pieces.push({ section : 'Axis', serie : j, subSection : 'Title', path : [ [ 'RELEMENT', labe ] ], attr : false });
+          } else {
+            attr.rotation = rotation;
+            pieces.push({ section : 'Axis', serie : j, subSection : 'Title', path : [ [ 'TEXT', axis[j].props.title, x, y ] ], attr : attr });
+          }
         } else
           pieces.push({ section : 'Axis', serie : j, subSection : 'Title', path : false, attr : false });
       }

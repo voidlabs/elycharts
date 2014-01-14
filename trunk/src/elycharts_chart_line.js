@@ -433,7 +433,11 @@ $.elycharts.line = {
 
               // Apply rotation to the element.
               if (axis.x.props.labelsRotate) {
-                labe.rotate(axis.x.props.labelsRotate, labx, laby).toBack();
+                if (Raphael.animation) {
+                  labe.transform(Raphael.format('r{0},{1},{2}', axis.x.props.labelsRotate, labx, laby)).toBack();
+                } else {
+                  labe.rotate(axis.x.props.labelsRotate, labx, laby).toBack();
+                }
               }
 
               paths.push({ path : [ [ 'RELEMENT', labe ] ], attr : false });
@@ -496,8 +500,16 @@ $.elycharts.line = {
             x = opt.margins[3] - axis[j].props.titleDistance * (Raphael.VML ? axis[j].props.titleDistanceIE : 1);
           //paper.text(x, opt.margins[0] + Math.floor((opt.height - opt.margins[0] - opt.margins[2]) / 2), axis[j].props.title).attr(axis[j].props.titleProps).attr({rotation : j == 'l' ? 270 : 90});
           var attr = common._clone(axis[j].props.titleProps);
-          attr.rotation = j == 'l' ? 270 : 90
-          pieces.push({ section : 'Axis', serie : j, subSection : 'Title', path : [ [ 'TEXT', axis[j].props.title, x, opt.margins[0] + Math.floor((opt.height - opt.margins[0] - opt.margins[2]) / 2) ] ], attr : attr });
+          var rotation = j == 'l' ? 270 : 90;
+          var y = opt.margins[0] + Math.floor((opt.height - opt.margins[0] - opt.margins[2]) / 2);
+          // Raphael 2 does not support .rotation
+          if (Raphael.animation) {
+            var labe = paper.text(x, y, axis[j].props.title).attr(attr).transform(Raphael.format('r{0}', rotation)).toBack();
+            pieces.push({ section : 'Axis', serie : j, subSection : 'Title', path : [ [ 'RELEMENT', labe ] ], attr : false });
+          } else {
+            attr.rotation = rotation;
+            pieces.push({ section : 'Axis', serie : j, subSection : 'Title', path : [ [ 'TEXT', axis[j].props.title, x, y ] ], attr : attr });
+          }
         } else
           pieces.push({ section : 'Axis', serie : j, subSection : 'Title', path : false, attr : false });
       }

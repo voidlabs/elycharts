@@ -257,9 +257,9 @@ $.elycharts.line = {
           for (i = 0, ii = labels.length; i < ii; i++)
             if (plot.to.length > i) {
               if (plot.from[i] != plot.to[i]) {
-                var bwid = Math.floor((deltaBarX - opt.barMargins) / env.barno);
+                var bwid = Math.floor((deltaBarX - opt.barMargins) / (1 + (env.barno - 1) * (100 - opt.barOverlapPerc) / 100));
                 var bpad = bwid * (100 - props.barWidthPerc) / 200;
-                var boff = opt.barMargins / 2 + plot.barno * bwid;
+                var boff = opt.barMargins / 2 + plot.barno * (bwid * (100 - opt.barOverlapPerc) / 100);
 
                 var x1 = Math.floor(opt.margins[3] + i * deltaBarX + boff + bpad);
                 var y1 = Math.round(opt.height - opt.margins[2] - deltaY * (plot.to[i] - plot.min));

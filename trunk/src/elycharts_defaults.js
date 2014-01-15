@@ -278,7 +278,10 @@ $.elycharts.templates = {
   line : {
     template : 'common',
     
+    // absolute margin left to both sides of each column / column group.
     barMargins : 0,
+    // overlap between additional columns over the previous one (ignored for the first serie)
+    barOverlapPerc : 0,
 
     // Axis
     defaultAxis : {

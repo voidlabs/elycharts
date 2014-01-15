@@ -1,9 +1,9 @@
 /********* Source File: extra-resources/header.js*********/
 /*!*********************************************************************
- * ELYCHARTS v2.1.4 $Id$ 
+ * ELYCHARTS v2.1.5-SNAPSHOT $Id$ 
  * A Javascript library to generate interactive charts with vectorial graphics.
  *
- * Copyright (c) 2010 Void Labs s.n.c. (http://void.it)
+ * Copyright (c) 2010-2014 Void Labs s.n.c. (http://void.it)
  * Licensed under the MIT (http://creativecommons.org/licenses/MIT/) license.
  **********************************************************************/
 /********* Source File: src/elycharts_defaults.js*********/
@@ -11,7 +11,7 @@
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
  *
- * Copyright (c) 2010 Void Labs s.n.c. (http://void.it)
+ * Copyright (c) 2010-2014 Void Labs s.n.c. (http://void.it)
  * Licensed under the MIT (http://creativecommons.org/licenses/MIT/) license.
  **********************************************************************/
 
@@ -287,7 +287,10 @@ $.elycharts.templates = {
   line : {
     template : 'common',
     
+    // absolute margin left to both sides of each column / column group.
     barMargins : 0,
+    // overlap between additional columns over the previous one (ignored for the first serie)
+    barOverlapPerc : 0,
 
     // Axis
     defaultAxis : {
@@ -465,7 +468,7 @@ $.elycharts.templates = {
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
  *
- * Copyright (c) 2010 Void Labs s.n.c. (http://void.it)
+ * Copyright (c) 2010-2014 Void Labs s.n.c. (http://void.it)
  * Licensed under the MIT (http://creativecommons.org/licenses/MIT/) license.
  **********************************************************************/
 
@@ -1628,7 +1631,7 @@ TODO
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
  *
- * Copyright (c) 2010 Void Labs s.n.c. (http://void.it)
+ * Copyright (c) 2010-2014 Void Labs s.n.c. (http://void.it)
  * Licensed under the MIT (http://creativecommons.org/licenses/MIT/) license.
  **********************************************************************/
 
@@ -1739,7 +1742,7 @@ $.elycharts.featuresmanager.register($.elycharts.anchormanager, 30);
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
  *
- * Copyright (c) 2010 Void Labs s.n.c. (http://void.it)
+ * Copyright (c) 2010-2014 Void Labs s.n.c. (http://void.it)
  * Licensed under the MIT (http://creativecommons.org/licenses/MIT/) license.
  **********************************************************************/
 
@@ -2135,7 +2138,7 @@ $.elycharts.featuresmanager.register($.elycharts.frameanimationmanager, 90);
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
  *
- * Copyright (c) 2010 Void Labs s.n.c. (http://void.it)
+ * Copyright (c) 2010-2014 Void Labs s.n.c. (http://void.it)
  * Licensed under the MIT (http://creativecommons.org/licenses/MIT/) license.
  **********************************************************************/
 
@@ -2359,7 +2362,7 @@ $.elycharts.featuresmanager.register($.elycharts.highlightmanager, 21);
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
  *
- * Copyright (c) 2010 Void Labs s.n.c. (http://void.it)
+ * Copyright (c) 2010-2014 Void Labs s.n.c. (http://void.it)
  * Licensed under the MIT (http://creativecommons.org/licenses/MIT/) license.
  **********************************************************************/
 
@@ -2493,7 +2496,7 @@ $.elycharts.featuresmanager.register($.elycharts.labelmanager, 5);
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
  *
- * Copyright (c) 2010 Void Labs s.n.c. (http://void.it)
+ * Copyright (c) 2010-2014 Void Labs s.n.c. (http://void.it)
  * Licensed under the MIT (http://creativecommons.org/licenses/MIT/) license.
  **********************************************************************/
 
@@ -2637,7 +2640,7 @@ $.elycharts.featuresmanager.register($.elycharts.legendmanager, 90);
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
  *
- * Copyright (c) 2010 Void Labs s.n.c. (http://void.it)
+ * Copyright (c) 2010-2014 Void Labs s.n.c. (http://void.it)
  * Licensed under the MIT (http://creativecommons.org/licenses/MIT/) license.
  **********************************************************************/
 
@@ -2862,7 +2865,7 @@ $.elycharts.featuresmanager.register($.elycharts.mousemanager, 0);
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
  *
- * Copyright (c) 2010 Void Labs s.n.c. (http://void.it)
+ * Copyright (c) 2010-2014 Void Labs s.n.c. (http://void.it)
  * Licensed under the MIT (http://creativecommons.org/licenses/MIT/) license.
  **********************************************************************/
 
@@ -3067,7 +3070,7 @@ $.elycharts.featuresmanager.register($.elycharts.tooltipmanager, 20);
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
  *
- * Copyright (c) 2010 Void Labs s.n.c. (http://void.it)
+ * Copyright (c) 2010-2014 Void Labs s.n.c. (http://void.it)
  * Licensed under the MIT (http://creativecommons.org/licenses/MIT/) license.
  **********************************************************************/
 
@@ -3322,9 +3325,9 @@ $.elycharts.line = {
           for (i = 0, ii = labels.length; i < ii; i++)
             if (plot.to.length > i) {
               if (plot.from[i] != plot.to[i]) {
-                var bwid = Math.floor((deltaBarX - opt.barMargins) / env.barno);
+                var bwid = Math.floor((deltaBarX - opt.barMargins) / (1 + (env.barno - 1) * (100 - opt.barOverlapPerc) / 100));
                 var bpad = bwid * (100 - props.barWidthPerc) / 200;
-                var boff = opt.barMargins / 2 + plot.barno * bwid;
+                var boff = opt.barMargins / 2 + plot.barno * (bwid * (100 - opt.barOverlapPerc) / 100);
 
                 var x1 = Math.floor(opt.margins[3] + i * deltaBarX + boff + bpad);
                 var y1 = Math.round(opt.height - opt.margins[2] - deltaY * (plot.to[i] - plot.min));
@@ -3678,7 +3681,7 @@ $.elycharts.line = {
  * ELYCHARTS
  * A Javascript library to generate interactive charts with vectorial graphics.
  *
- * Copyright (c) 2010 Void Labs s.n.c. (http://void.it)
+ * Copyright (c) 2010-2014 Void Labs s.n.c. (http://void.it)
  * Licensed under the MIT (http://creativecommons.org/licenses/MIT/) license.
  **********************************************************************/
 

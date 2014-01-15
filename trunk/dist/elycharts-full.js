@@ -2824,9 +2824,11 @@ $.elycharts.mousemanager = {
         start = env.opt.margins[3] - delta / 2;
       }
 
-      for (var index in env.opt.labels) {
+      for (var idx in env.opt.labels) {
+      	// idx can be a string and concatenation results in bad sums.
+      	var index = parseInt(idx);
         env.mouseAreas.push({
-          path : [ [ 'RECT', start + index * delta, env.opt.margins[0], start + (index + 1) * delta, env.opt.height - env.opt.margins[2] ] ],
+          path : [ [ 'RECT', start + index * delta, env.opt.height - env.opt.margins[2], start + (index + 1) * delta, env.opt.margins[0] ] ],
           piece : false,
           pieces : pieces,
           index : parseInt(index),

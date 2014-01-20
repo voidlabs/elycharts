@@ -686,10 +686,11 @@ function _normalizeOptionsColor($section, $type, $fullopt) {
     if (!$section.plotProps)
       $section.plotProps = {};
     
-    if ($type == 'line') {
+    if ($type == 'line' || $type == 'bar') {
       if ($section.plotProps && !$section.plotProps.stroke && !$fullopt.defaultSeries.plotProps.stroke)
         $section.plotProps.stroke = color;
-    } else {
+    }
+    if ($type == 'line') {
       if ($section.plotProps && !$section.plotProps.fill && !$fullopt.defaultSeries.plotProps.fill)
         $section.plotProps.fill = color;
     }

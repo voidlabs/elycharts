@@ -224,7 +224,7 @@ function _normalizeOptionsColor($section, $type, $fullopt) {
       if ($section.plotProps && !$section.plotProps.stroke && !$fullopt.defaultSeries.plotProps.stroke)
         $section.plotProps.stroke = color;
     }
-    if ($type == 'line') {
+    if ($type == 'bar') {
       if ($section.plotProps && !$section.plotProps.fill && !$fullopt.defaultSeries.plotProps.fill)
         $section.plotProps.fill = color;
     }

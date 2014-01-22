@@ -8,7 +8,6 @@
 
 (function($) {
 
-var featuresmanager = $.elycharts.featuresmanager;
 var common = $.elycharts.common;
 
 /***********************************************************************
@@ -119,9 +118,7 @@ $.elycharts.pie = {
       pieces.push({ section : 'Series', serie : serie, subSection : 'Plot', paths : paths , mousearea : 'paths'});
     }
     
-    featuresmanager.beforeShow(env, pieces);
     common.show(env, pieces);
-    featuresmanager.afterShow(env, pieces);
     return pieces;
   }
 }

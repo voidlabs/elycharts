@@ -8,7 +8,6 @@
 
 (function($) {
 
-var featuresmanager = $.elycharts.featuresmanager;
 var common = $.elycharts.common;
 
 /***********************************************************************
@@ -39,9 +38,7 @@ $.elycharts.funnel = {
       var pieces = this.pieces(env, serie, 0, 1, 1, values);
     }
       
-    featuresmanager.beforeShow(env, pieces);
     common.show(env, pieces);
-    featuresmanager.afterShow(env, pieces);
     return pieces;
   },
   

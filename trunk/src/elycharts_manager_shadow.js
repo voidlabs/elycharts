@@ -8,9 +8,6 @@
 
 (function($) {
 
-//var featuresmanager = $.elycharts.featuresmanager;
-//var common = $.elycharts.common;
-
 /***********************************************************************
  * FEATURE: SHADOW
  **********************************************************************/

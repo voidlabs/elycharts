@@ -791,8 +791,10 @@ $.elycharts.common = {
   },
 
 
-  show : function(env, pieces) {
-    pieces = this.getSortedPathData(pieces);
+  show : function(env, origPieces) {
+    if ($.elycharts.featuresmanager) $.elycharts.featuresmanager.beforeShow(env, origPieces);
+    
+    pieces = this.getSortedPathData(origPieces);
 
     common.animationStackStart(env);
 
@@ -880,6 +882,8 @@ $.elycharts.common = {
     }
 
     common.animationStackEnd(env);
+    
+    if ($.elycharts.featuresmanager) $.elycharts.featuresmanager.afterShow(env, origPieces);
   },
 
   /**

@@ -405,11 +405,28 @@ $.elycharts.common = {
     return false;
   },
   
+  /**
+   * Can be called for a whole serie or for a given index of the serie.
+   * returns the color for that item considering valuesPalette, seriesPalette and inheritance
+   */
   getItemColor : function(env, serie, index) {
     var props = this.areaProps(env, 'Series', serie, index);
     if (props.color) return props.color;
+    if (index !== false && props.valuesPalette) return props.valuesPalette[index % props.valuesPalette.length];
+    if (env.opt.seriesPalette) {
+      var serieIndex = 0;
+      for(seriekey in env.opt.values) {
+        if (serie == seriekey) return env.opt.seriesPalette[serieIndex % env.opt.seriesPalette.length];
+        else serieIndex++;
+      }
+    }
   },
   
+  /**
+   * Given an expandKey as array of array it sets the color to the nested tree unless it is already defined.
+   * So [ [ 'parent', 'child' ], [ 'item' ] ] will try to put color in props.parent.child and props.item unless
+   * they already exists.
+   */
   colorize : function(env, props, expandKeys, color) {
     if (color) {
    	  for (k in expandKeys) {

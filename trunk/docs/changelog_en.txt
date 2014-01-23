@@ -1,4 +1,6 @@
 v2.1.5-SNAPSHOT
+- added support for valuesPalette and seriesPalette feature to automatically assign colors starting from a cycling palette (Issue #9) 
+- added support for single value coloring in bar charts (each column can be printed with a different color)
 - added caching for internal properties "inheritance" computation (enabled by default, disable by setting enableInternalCaching to false)
 - added "margins" support to pie chart and fixed cx/cy usage (cy was ignored in favor of cx only) (Issue #31)
 - rewrote "color" property inheritance to better deal with mixed line/bar charts, chart updates, have better performances and pie support (Issue #33)

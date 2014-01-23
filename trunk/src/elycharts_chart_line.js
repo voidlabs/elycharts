@@ -270,7 +270,10 @@ $.elycharts.line = {
           for (i = 0, ii = labels.length; i < ii; i++)
             if (plot.to.length > i) {
               if (plot.from[i] != plot.to[i]) {
-                var bwid = Math.floor((deltaBarX - opt.barMargins) / (1 + (env.barno - 1) * (100 - opt.barOverlapPerc) / 100));
+                var indexProps = common.areaProps(env, 'Series', serie, i);
+                common.colorize(env, indexProps, this._getColorizationKey(props.type), common.getItemColor(env, serie, i));
+            	  
+            	var bwid = Math.floor((deltaBarX - opt.barMargins) / (1 + (env.barno - 1) * (100 - opt.barOverlapPerc) / 100));
                 var bpad = bwid * (100 - props.barWidthPerc) / 200;
                 var boff = opt.barMargins / 2 + plot.barno * (bwid * (100 - opt.barOverlapPerc) / 100);
 
@@ -278,7 +281,7 @@ $.elycharts.line = {
                 var y1 = Math.round(opt.height - opt.margins[2] - deltaY * (plot.to[i] - plot.min));
                 var y2 = Math.round(opt.height - opt.margins[2] - deltaY * (plot.from[i] - plot.min));
 
-                pieceBar.push({path : [ [ 'RECT', x1, y1, x1 + bwid - bpad * 2, y2 ] ], attr : props.plotProps });
+                pieceBar.push({path : [ [ 'RECT', x1, y1, x1 + bwid - bpad * 2, y2 ] ], attr : indexProps.plotProps });
               } else
                 pieceBar.push({path : false, attr : false });
             }

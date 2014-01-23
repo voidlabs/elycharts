@@ -17,19 +17,24 @@ var common = $.elycharts.common;
 
 $.elycharts.mousemanager = {
 
-  afterShow : function(env, pieces) {
-    if (!env.opt.interactive)
-      return;
-      
+  clear : function(env) {
     if (env.mouseLayer) {
       env.mouseLayer.remove();
       env.mouseLayer = null;
+      env.mousePaper.clear();
       env.mousePaper.remove();
       env.mousePaper = null;
       env.mouseTimer = null;
       env.mouseAreas = null;
-      // Meglio fare anche l'unbind???
+      // NOTE: do we also need to unbind mouseover/mouseout from areas or is this handled automatically by Raphael?
     }
+  },
+  
+  afterShow : function(env, pieces) {
+    if (!env.opt.interactive)
+      return;
+      
+    this.clear(env);
 
     env.mouseLayer = $('<div></div>').css({position : 'absolute', 'z-index' : 20, opacity : 0}).prependTo(env.container);
     env.mousePaper = common._RaphaelInstance(env.mouseLayer.get(0), env.opt.width, env.opt.height);

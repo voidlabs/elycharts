@@ -27,7 +27,7 @@ $.fn.chart = function($options) {
       return $env ? $env.opt : false;
     if ($options.toLowerCase() == "clear") {
       if ($env) {
-        // TODO Bisogna chiamare il destroy delle feature?
+        if ($.elycharts.featuresmanager) $.elycharts.featuresmanager.clear($env);
         $env.paper.clear();
         this.html("");
         this.data('elycharts_env', false);
@@ -1039,6 +1039,15 @@ $.elycharts.featuresmanager = {
   init : function() {
     $.elycharts.featuresmanager.managers.sort(function(a, b) { return a[0] < b[0] ? -1 : (a[0] == b[0] ? 0 : 1) });
     $.elycharts.featuresmanager.initialized = true;
+  },
+  
+  clear : function(env) {
+    if (!$.elycharts.featuresmanager.initialized)
+      this.init();
+    // reverse cycle over manager
+    for (var i = $.elycharts.featuresmanager.managers.length - 1; i >= 0; i--)
+      if ($.elycharts.featuresmanager.managers[i][1].clear)
+        $.elycharts.featuresmanager.managers[i][1].clear(env);
   },
   
   beforeShow : function(env, pieces) {

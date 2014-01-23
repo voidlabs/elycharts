@@ -37,6 +37,7 @@ $.elycharts.pie = {
       };
       env.plots[serie] = plot;
       var serieProps = common.areaProps(env, 'Series', serie);
+      common.colorize(env, serieProps, [['plotProps','stroke'],['plotProps','fill']], common.getItemColor(env, serie));
       if (serieProps.visible) {
         plot.visible = true;
         cnt ++;
@@ -44,6 +45,7 @@ $.elycharts.pie = {
         for (i = 0, ii = plot.values.length; i < ii; i++)
           if (plot.values[i] > 0) {
             props = common.areaProps(env, 'Series', serie, i);
+            common.colorize(env, props, [['plotProps','stroke'],['plotProps','fill']], common.getItemColor(env, serie, i));
             if (typeof props.inside == 'undefined' || props.inside < 0)
               plot.total += plot.values[i];
           }
@@ -70,6 +72,7 @@ $.elycharts.pie = {
         if (plot.total == 0) {
           env.emptySeries = true;
           props = common.areaProps(env, 'Series', 'empty');
+          common.colorize(env, props, [['plotProps','stroke'],['plotProps','fill']], common.getItemColor(env, serie));
           paths.push({ path : [ [ 'CIRCLE', cx, cy, r ] ], attr : props.plotProps });
 
         } else {
@@ -78,6 +81,7 @@ $.elycharts.pie = {
             var value = plot.values[i];
             if (value > 0) {
               props = common.areaProps(env, 'Series', serie, i);
+              common.colorize(env, props, [['plotProps','stroke'],['plotProps','fill']], common.getItemColor(env, serie, i));
               if (typeof props.inside == 'undefined' || props.inside < 0) {
                 angle += anglelimit;
                 angleplus = 360 * value / plot.total;

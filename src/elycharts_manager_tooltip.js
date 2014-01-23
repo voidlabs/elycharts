@@ -145,6 +145,12 @@ $.elycharts.tooltipmanager = {
       props = $.extend(true, props, env.opt.series.empty.tooltip);
     if (!props || !props.active)
       return false;
+    
+    var color = common.getItemColor(env, serie, index);
+    if (color) {
+      props = common._clone(props);
+      common.colorize(env, props, [['frameProps', 'stroke']], color);
+    }
 
     var tip = this.getTip(env, serie, index);
     if (!tip)
@@ -173,6 +179,12 @@ $.elycharts.tooltipmanager = {
       props = $.extend(true, props, env.opt.series.empty.tooltip);
     if (!props || !props.active)
       return false;
+
+    var color = common.getItemColor(env, serie, index);
+    if (color) {
+      props = common._clone(props);
+      common.colorize(env, props, [['frameProps', 'stroke']], color);
+    }
 
     var tip = this.getTip(env, serie, index);
     if (!tip)

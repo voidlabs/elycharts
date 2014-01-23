@@ -272,6 +272,8 @@ $.elycharts.templates = {
       }
     },
     
+    enableInternalCaching : true,
+    
     nop : 0
   },
 

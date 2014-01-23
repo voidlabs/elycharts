@@ -29,12 +29,15 @@ $.fn.chart = function($options) {
       if ($env) {
         if ($.elycharts.featuresmanager) $.elycharts.featuresmanager.clear($env);
         $env.paper.clear();
+        $env.cache = false;
         this.html("");
         this.data('elycharts_env', false);
       }
     }
+    return this;
   }
-  else if (!$env) {
+  
+  if (!$env) {
     // First call, initialization
 
     if ($options)
@@ -45,10 +48,7 @@ $.fn.chart = function($options) {
       return false;
     }
     $env = _initEnv(this, $options);
-    
-    _processGenericConfig($env, $options);
-    $env.pieces = $.elycharts[$env.opt.type].draw($env);
-    
+
     this.data('elycharts_env', $env);
     
   } else {
@@ -59,9 +59,12 @@ $.fn.chart = function($options) {
     $env.opt = $.extend(true, $env.opt, $options);
     $env.newopt = $options;
     
-    _processGenericConfig($env, $options);
-    $env.pieces = $.elycharts[$env.opt.type].draw($env);
   }
+  
+  $env.cache = $options['enableInternalCaching'] ? {} : false;
+  
+  _processGenericConfig($env, $options);
+  $env.pieces = $.elycharts[$env.opt.type].draw($env);
   
   return this;
 }
@@ -437,9 +440,9 @@ $.elycharts.common = {
 
       else {
     	var cacheKey = section+'/'+serie+'/'+index;
-        if (env.cache && env.cache.areaPropsCache[cacheKey])
+        if (env.cache && env.cache.areaPropsCache && env.cache.areaPropsCache[cacheKey]) {
           props = env.cache.areaPropsCache[cacheKey];
-        
+        }
         else {
           props = this._clone(env.opt['default' + section]);
           if (sectionProps && sectionProps[serie])
@@ -448,7 +451,10 @@ $.elycharts.common = {
           if ((typeof index != 'undefined') && index >= 0 && props['values'] && props['values'][index])
             props = this._mergeObjects(props, props['values'][index]);
 
-          if (env.cache) env.cache.areaPropsCache[cacheKey] = props;
+          if (env.cache) {
+            if (!env.cache.areaPropsCache) env.cache.areaPropsCache = {}; 
+            env.cache.areaPropsCache[cacheKey] = props;
+          }
         }
       }
 

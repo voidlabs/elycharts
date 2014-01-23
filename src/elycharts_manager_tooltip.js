@@ -16,8 +16,9 @@ var common = $.elycharts.common;
 
 $.elycharts.tooltipmanager = {
 
-  afterShow : function(env, pieces) {
+  clear : function(env) {
     if (env.tooltipContainer) {
+      env.tooltipFrame.clear();
       env.tooltipFrame.remove();
       env.tooltipFrame = null;
       env.tooltipFrameElement = null;
@@ -26,6 +27,10 @@ $.elycharts.tooltipmanager = {
       env.tooltipContainer.remove();
       env.tooltipContainer = null;
     }
+  },
+  
+  afterShow : function(env, pieces) {
+  	this.clear(env);
     
     if (!$.elycharts.tooltipid)
       $.elycharts.tooltipid = 0;

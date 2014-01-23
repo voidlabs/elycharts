@@ -111,7 +111,7 @@ function _extendAndNormalizeOptions($options) {
         $.elycharts.templates[k] = $.elysia_charts.templates[k];
   }
 
-  // TODO Optimize extend cicle
+  // TODO Optimize extend cycle
   while ($options.template) {
     var d = $options.template;
     delete $options.template;
@@ -147,26 +147,14 @@ function _normalizeOptions($options, $fullopt) {
   }
   
   if ($options.defaultSeries) {
-    var deftype = $fullopt.type != 'line' ? $fullopt.type : ($options.defaultSeries.type ? $options.defaultSeries.type : ($fullopt.defaultSeries.type ? $fullopt.defaultSeries.type : 'line'));
-    _normalizeOptionsColor($options.defaultSeries, deftype, $fullopt);
-    if ($options.defaultSeries.stackedWith) {
-      $options.defaultSeries.stacked = $options.defaultSeries.stackedWith;
-      delete $options.defaultSeries.stackedWith;
-    }
+    var plotType = $options.defaultSeries.type ? $options.defaultSeries.type : ($fullopt.defaultSeries.type ? $fullopt.defaultSeries.type : $fullopt.type);
+    _normalizeOptionsSerie($options.defaultSeries, $fullopt.type, plotType, $fullopt);
   }
     
   if ($options.series)
     for (var serie in $options.series) {
-      var type = $fullopt.type != 'line' ? $fullopt.type : ($options.series[serie].type ? $options.series[serie].type : ($fullopt.series[serie].type ? $fullopt.series[serie].type : (deftype ? deftype : 'line')));
-      _normalizeOptionsColor($options.series[serie], type, $fullopt);
-      if ($options.series[serie].values)
-        for (var value in $options.series[serie].values)
-          _normalizeOptionsColor($options.series[serie].values[value], type, $fullopt);
-      
-      if ($options.series[serie].stackedWith) {
-        $options.series[serie].stacked = $options.series[serie].stackedWith;
-        delete $options.series[serie].stackedWith;
-      }
+      var seriePlotType = $options.series[serie].type ? $options.series[serie].type : ($fullopt.series[serie].type ? $fullopt.series[serie].type : (plotType ? plotType : $fullopt.type));
+      _normalizeOptionsSerie($options.series[serie], $fullopt.type, seriePlotType, $fullopt);
     }
     
   if ($options.type == 'line') {
@@ -208,23 +196,45 @@ function _normalizeOptions($options, $fullopt) {
   return $options;
 }
 
+
+/**
+* Manage "color" attribute, the stackedWith legacy and values "color" properties.
+* @param $section Section part of external conf passed
+* @param $type Chart type
+* @param $plotType for line chart can be "line" or "bar", for other types is equal to chart type.
+*/
+function _normalizeOptionsSerie($section, $type, $plotType, $fullopt) {
+  /*
+  _normalizeOptionsColor($section, $type, $plotType, $fullopt);
+  if ($section.values)
+    for (var value in $section.values)
+      _normalizeOptionsColor($section.values[value], $type, $plotType, $fullopt);
+  */
+    
+  if ($section.stackedWith) {
+    $section.stacked = $section.stackedWith;
+    delete $section.stackedWith;
+  }
+}
+
 /**
 * Manage "color" attribute.
 * @param $section Section part of external conf passed
-* @param $type Type of plot (for line chart can be "line" or "bar", for other types is equal to chart type)
+* @param $type Chart type
+* @param $plotType for line chart can be "line" or "bar", for other types is equal to chart type.
 */
-function _normalizeOptionsColor($section, $type, $fullopt) {
+function _normalizeOptionsColor($section, $type, $plotType, $fullopt) {
   if ($section.color) {
     var color = $section.color;
     
     if (!$section.plotProps)
       $section.plotProps = {};
-    
-    if ($type == 'line' || $type == 'bar') {
+
+    if ($type == 'line' || $type == 'pie') {
       if ($section.plotProps && !$section.plotProps.stroke && !$fullopt.defaultSeries.plotProps.stroke)
         $section.plotProps.stroke = color;
     }
-    if ($type == 'bar') {
+    if (($type == 'line' && $plotType == 'bar') || $type == 'pie') {
       if ($section.plotProps && !$section.plotProps.fill && !$fullopt.defaultSeries.plotProps.fill)
         $section.plotProps.fill = color;
     }
@@ -244,7 +254,7 @@ function _normalizeOptionsColor($section, $type, $fullopt) {
     if ($section.legend.dotProps && !$section.legend.dotProps.fill)
       $section.legend.dotProps.fill = color;
       
-    if ($type == 'line') {
+    if ($type == 'line' && $plotType == 'line') {
       if (!$section.dotProps)
         $section.dotProps = {};
       if ($section.dotProps && !$section.dotProps.fill && !$fullopt.defaultSeries.dotProps.fill)
@@ -392,6 +402,25 @@ $.elycharts.common = {
     return false;
   },
   
+  getItemColor : function(env, serie, index) {
+    var props = this.areaProps(env, 'Series', serie, index);
+    if (props.color) return props.color;
+  },
+  
+  colorize : function(env, props, expandKeys, color) {
+    if (color) {
+   	  for (k in expandKeys) {
+   	    var p = props;
+   	    var i = 0;
+   	    for (i = 0; i < expandKeys[k].length - 1; i++) {
+   	      if (!p[expandKeys[k][i]]) p[expandKeys[k][i]] = {};
+   	      p = p[expandKeys[k][i]];
+   	    }
+   	    if (!p[expandKeys[k][expandKeys[k].length-1]]) p[expandKeys[k][expandKeys[k].length-1]] = color;
+   	  }
+    }
+  },
+  
   /**
    * Ottiene le proprietà di una "Area" definita nella configurazione (options),
    * identificata da section / serie / index / subsection, e facendo il merge
@@ -400,35 +429,45 @@ $.elycharts.common = {
   areaProps : function(env, section, serie, index, subsection) {
     var props;
 
+    var sectionProps = env.opt[section.toLowerCase()];
     // TODO fare una cache e fix del toLowerCase (devono solo fare la prima lettera
     if (!subsection) {
       if (typeof serie == 'undefined' || !serie)
-        props = env.opt[section.toLowerCase()];
+        props = sectionProps;
 
       else {
-        props = this._clone(env.opt['default' + section]);
-        if (env.opt[section .toLowerCase()] && env.opt[section.toLowerCase()][serie])
-          props = this._mergeObjects(props, env.opt[section.toLowerCase()][serie]);
+    	var cacheKey = section+'/'+serie+'/'+index;
+        if (env.cache && env.cache.areaPropsCache[cacheKey])
+          props = env.cache.areaPropsCache[cacheKey];
+        
+        else {
+          props = this._clone(env.opt['default' + section]);
+          if (sectionProps && sectionProps[serie])
+            props = this._mergeObjects(props, sectionProps[serie]);
 
-        if ((typeof index != 'undefined') && index >= 0 && props['values'] && props['values'][index])
-          props = this._mergeObjects(props, props['values'][index]);
+          if ((typeof index != 'undefined') && index >= 0 && props['values'] && props['values'][index])
+            props = this._mergeObjects(props, props['values'][index]);
+
+          if (env.cache) env.cache.areaPropsCache[cacheKey] = props;
+        }
       }
 
     } else {
-      props = this._clone(env.opt[subsection.toLowerCase()]);
+      var subsectionKey = subsection.toLowerCase();
+      props = this._clone(env.opt[subsectionKey]);
       
       if (typeof serie == 'undefined' || !serie) {
-        if (env.opt[section.toLowerCase()] && env.opt[section.toLowerCase()][subsection.toLowerCase()])
-          props = this._mergeObjects(props, env.opt[section.toLowerCase()][subsection.toLowerCase()]);
+        if (sectionProps && sectionProps[subsectionKey])
+          props = this._mergeObjects(props, sectionProps[subsectionKey]);
 
       } else {
-        if (env.opt['default' + section] && env.opt['default' + section][subsection.toLowerCase()])
-          props = this._mergeObjects(props, env.opt['default' + section][subsection.toLowerCase()]);
+        if (env.opt['default' + section] && env.opt['default' + section][subsectionKey])
+          props = this._mergeObjects(props, env.opt['default' + section][subsectionKey]);
 
-        if (env.opt[section .toLowerCase()] && env.opt[section.toLowerCase()][serie] && env.opt[section.toLowerCase()][serie][subsection.toLowerCase()])
-          props = this._mergeObjects(props, env.opt[section.toLowerCase()][serie][subsection.toLowerCase()]);
+        if (sectionProps && sectionProps[serie] && sectionProps[serie][subsectionKey])
+          props = this._mergeObjects(props, sectionProps[serie][subsectionKey]);
         
-        if (props && (typeof index != 'undefined') && index > 0 && props['values'] && props['values'][index])
+        if ((typeof index != 'undefined') && index > 0 && props['values'] && props['values'][index])
           props = this._mergeObjects(props, props['values'][index]);
       }
     }
@@ -748,7 +787,6 @@ $.elycharts.common = {
       hasdata = true;
       break;
     }
-
     return props && hasdata ? paper.path().attr(props) : false;
   },
   

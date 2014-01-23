@@ -56,20 +56,22 @@ $.elycharts.legendmanager = {
 
       for (var j = 0; j < data.length; j++) {
         var sprops = common.areaProps(env, 'Series', serie, env.opt.type == 'pie' ? j : false);
-        var dprops = $.extend(true, {}, props.dotProps);
-        if (sprops.legend && sprops.legend.dotProps)
-          dprops = $.extend(true, dprops, sprops.legend.dotProps);
-        if (!dprops.fill && env.opt.type == 'pie') {
-          if (sprops.color)
-            dprops.fill = sprops.color;
-          if (sprops.plotProps && sprops.plotProps.fill)
-            dprops.fill = sprops.plotProps.fill;
+        var computedProps = $.extend(true, {}, props);
+
+        if (sprops.legend)
+            computedProps = $.extend(true, computedProps, sprops.legend);
+        
+        var color = common.getItemColor(env, serie, env.opt.type == 'pie' ? j : false);
+        if (color) {
+          common.colorize(env, computedProps, [['dotProps', 'fill']], color);
         }
-        var dtype = sprops.legend && sprops.legend.dotType ? sprops.legend.dotType : props.dotType;
-        var dwidth = sprops.legend && sprops.legend.dotWidth ? sprops.legend.dotWidth : props.dotWidth;
-        var dheight = sprops.legend && sprops.legend.dotHeight ? sprops.legend.dotHeight : props.dotHeight;
-        var dr = sprops.legend && sprops.legend.dotR ? sprops.legend.dotR : props.dotR;
-        var tprops = sprops.legend && sprops.legend.textProps ? sprops.legend.textProps : props.textProps;
+
+        // legacy support for legend dot color inherited from pie "fill"
+        // TODO maybe we should simply remove this and leave the "color" support only
+        if (!computedProps.dotProps.fill && env.opt.type == 'pie') {
+          if (sprops.plotProps && sprops.plotProps.fill)
+            computedProps.dotProps.fill = sprops.plotProps.fill;
+        }
         
         if (!props.horizontal) {
           // Posizione dell'angolo in alto a sinistra
@@ -89,16 +91,16 @@ $.elycharts.legendmanager = {
           y = Math.floor(props.y + props.margins[0]);
         }
         
-        if (dtype == "rect") {
-          items.push(common.showPath(env, [ [ 'RECT', props.dotMargins[0] + x, y + Math.floor((h - dheight) / 2), props.dotMargins[0] + x + dwidth, y + Math.floor((h - dheight) / 2) + dheight, dr ] ]).attr(dprops));
-          xd = props.dotMargins[0] + dwidth + props.dotMargins[1];
-        } else if (dtype == "circle") {
-          items.push(common.showPath(env, [ [ 'CIRCLE', props.dotMargins[0] + x + dr, y + (h / 2), dr ] ]).attr(dprops));
+        if (computedProps.dotType == "rect") {
+          items.push(common.showPath(env, [ [ 'RECT', props.dotMargins[0] + x, y + Math.floor((h - computedProps.dotHeight) / 2), props.dotMargins[0] + x + computedProps.dotWidth, y + Math.floor((h - computedProps.dotHeight) / 2) + computedProps.dotHeight, computedProps.dotR ] ]).attr(computedProps.dotProps));
+          xd = props.dotMargins[0] + computedProps.dotWidth + props.dotMargins[1];
+        } else if (computedProps.dotType == "circle") {
+          items.push(common.showPath(env, [ [ 'CIRCLE', props.dotMargins[0] + x + computedProps.dotR, y + (h / 2), dr ] ]).attr(computedProps.dotProps));
           xd = props.dotMargins[0] + dr * 2 + props.dotMargins[1];
         }
         
         var text = data[j];
-        var t = common.showPath(env, [ [ 'TEXT', text, x + xd, y + Math.ceil(h / 2) + (Raphael.VML ? 2 : 0) ] ]).attr({"text-anchor" : "start"}).attr(tprops); //.hide();
+        var t = common.showPath(env, [ [ 'TEXT', text, x + xd, y + Math.ceil(h / 2) + (Raphael.VML ? 2 : 0) ] ]).attr({"text-anchor" : "start"}).attr(computedProps.textProps); //.hide();
         items.push(t);
         while (t.getBBox().width > (w - xd) && t.getBBox().width > 10) {
           text = text.substring(0, text.length - 1);

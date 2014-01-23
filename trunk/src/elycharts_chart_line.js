@@ -18,6 +18,17 @@ $.elycharts.line = {
   init : function($env) {
   },
   
+  _getColorizationKey : function($type) {
+    if ($type == 'line') return [
+      ['plotProps', 'stroke'],
+      ['dotProps', 'fill'],
+      ['fillProps', 'fill']
+    ]; else return [
+      ['plotProps', 'stroke'],
+      ['plotProps', 'fill']
+    ];
+  },
+  
   draw : function(env) {
     if (common.executeIfChanged(env, ['values', 'series'])) {
       env.plots = {};
@@ -199,6 +210,8 @@ $.elycharts.line = {
       props = common.areaProps(env, 'Series', serie);
       plot = plots[serie];
 
+      common.colorize(env, props, this._getColorizationKey(props.type), common.getItemColor(env, serie));
+      
       // TODO Settare una props in questo modo potrebbe incasinare la gestione degli update parziali (se iso "lineCenter: auto" e passo da un grafico con indexCenter = bar a uno con indexCenter = line)
       if (props.lineCenter && props.lineCenter == 'auto')
         props.lineCenter = (env.indexCenter == 'bar');
@@ -217,6 +230,8 @@ $.elycharts.line = {
           for (i = 0, ii = labels.length; i < ii; i++)
             if (plot.to.length > i) {
               var indexProps = common.areaProps(env, 'Series', serie, i);
+
+              common.colorize(env, indexProps, this._getColorizationKey(props.type), common.getItemColor(env, serie, i));
 
               var d = plot.to[i] > plot.max ? plot.max : (plot.to[i] < plot.min ? plot.min : plot.to[i]);
               var x = Math.round((props.lineCenter ? deltaBarX / 2 : 0) + opt.margins[3] + i * (props.lineCenter ? deltaBarX : deltaX));
@@ -251,7 +266,6 @@ $.elycharts.line = {
           
         } else {
           pieceBar = [];
-          
           // BAR CHART
           for (i = 0, ii = labels.length; i < ii; i++)
             if (plot.to.length > i) {

@@ -1,4 +1,5 @@
 v2.1.5-SNAPSHOT
+- fixed erros when using "legend: false" or legend without margin definitions (Issue #14)
 - added support for valuesPalette and seriesPalette feature to automatically assign colors starting from a cycling palette (Issue #9) 
 - added support for single value coloring in bar charts (each column can be printed with a different color)
 - added caching for internal properties "inheritance" computation (enabled by default, disable by setting enableInternalCaching to false)

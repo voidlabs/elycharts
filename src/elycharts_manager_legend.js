@@ -22,6 +22,8 @@ $.elycharts.legendmanager = {
 
     var props = env.opt.features.legend;
     
+    if (props === false) return;
+    
     if (props.x == 'auto') {
       var autox = 1;
       props.x = 0;
@@ -73,22 +75,27 @@ $.elycharts.legendmanager = {
             computedProps.dotProps.fill = sprops.plotProps.fill;
         }
         
+        var hMargin = props.margins ? props.margins[0] + props.margins[2] : 0;
+        var wMargin = props.margins ? props.margins[1] + props.margins[3] : 0;
+        var tMargin = props.margins ? props.margins[0] : 0;
+        var lMargin = props.margins ? props.margins[3] : 0;
+        
         if (!props.horizontal) {
           // Posizione dell'angolo in alto a sinistra
-          h = (props.height - props.margins[0] - props.margins[2]) / legendCount;
-          w = props.width - props.margins[1] - props.margins[3];
-          x = Math.floor(props.x + props.margins[3]);
-          y = Math.floor(props.y + props.margins[0] + h * i);
+          h = (props.height - hMargin) / legendCount;
+          w = props.width - wMargin;
+          x = Math.floor(props.x + lMargin);
+          y = Math.floor(props.y + tMargin + h * i);
         } else {
-          h = props.height - props.margins[0] - props.margins[2];
+          h = props.height - hMargin;
           if (!props.itemWidth || props.itemWidth == 'fixed') {
-            w = (props.width - props.margins[1] - props.margins[3]) / legendCount;
-            x = Math.floor(props.x + props.margins[3] + w * i);
+            w = (props.width - wMargin) / legendCount;
+            x = Math.floor(props.x + lMargin + w * i);
           } else {
-            w = (props.width - props.margins[1] - props.margins[3]) - wauto;
-            x = props.x + props.margins[3] + wauto;
+            w = (props.width - wMargin) - wauto;
+            x = props.x + lMargin + wauto;
           }
-          y = Math.floor(props.y + props.margins[0]);
+          y = Math.floor(props.y + tMargin);
         }
         
         if (computedProps.dotType == "rect") {

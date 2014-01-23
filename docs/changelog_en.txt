@@ -1,4 +1,5 @@
 v2.1.5-SNAPSHOT
+- added "margins" support to pie chart and fixed cx/cy usage (cy was ignored in favor of cx only) (Issue #31)
 - rewrote "color" property inheritance to better deal with mixed line/bar charts, chart updates, have better performances and pie support (Issue #33)
 - rewrite "legend" properties management to simplify code (should not change the behaviour)
 - added "clear" method to featuresmanager so that features can be properly react to chart "clearing" (Issue #32 hint by pduval@github)

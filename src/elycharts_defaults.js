@@ -422,6 +422,10 @@ $.elycharts.templates = {
     // Soglia (rapporto sul totale) entro la quale una fetta non viene visualizzata
     valueThresold : 0.006,
     
+    // @since elycharts 2.1.5 (previously there was no margins support so when we implemented it we had to add a 0 margin
+    // here to not start adding the common margin to every pie user
+    margins : [0, 0, 0, 0],
+    
     defaultSeries : {
       // r: .5, raggio usato solo per questo spicchio, se <=1 e' in rapporto al raggio generale
       // inside: X, inserisce questo spicchio dentro un altro (funziona solo inside: precedente, e non gestisce + spicchi dentro l'altro)

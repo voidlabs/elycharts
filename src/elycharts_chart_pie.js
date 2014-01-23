@@ -22,11 +22,11 @@ $.elycharts.pie = {
     //var paper = env.paper;
     var opt = env.opt;
     
-    var w = env.opt.width;
-    var h = env.opt.height;
+    var w = env.opt.width - env.opt.margins[1] - env.opt.margins[3];
+    var h = env.opt.height - env.opt.margins[0] - env.opt.margins[2];
     var r = env.opt.r ? env.opt.r : Math.floor((w < h ? w : h) / 2.5);
-    var cx = env.opt.cx ? env.opt.cx : Math.floor(w / 2);
-    var cy = env.opt.cy ? env.opt.cx : Math.floor(h / 2);
+    var cx = (env.opt.cx ? env.opt.cx : Math.floor(w / 2)) + env.opt.margins[3];
+    var cy = (env.opt.cy ? env.opt.cy : Math.floor(h / 2)) + env.opt.margins[0];
     
     var cnt = 0, i, ii, serie, plot, props;
     for (serie in opt.values) {

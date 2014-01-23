@@ -281,6 +281,8 @@ $.elycharts.templates = {
       }
     },
     
+    enableInternalCaching : true,
+    
     nop : 0
   },
 
@@ -431,6 +433,10 @@ $.elycharts.templates = {
     // Soglia (rapporto sul totale) entro la quale una fetta non viene visualizzata
     valueThresold : 0.006,
     
+    // @since elycharts 2.1.5 (previously there was no margins support so when we implemented it we had to add a 0 margin
+    // here to not start adding the common margin to every pie user
+    margins : [0, 0, 0, 0],
+    
     defaultSeries : {
       // r: .5, raggio usato solo per questo spicchio, se <=1 e' in rapporto al raggio generale
       // inside: X, inserisce questo spicchio dentro un altro (funziona solo inside: precedente, e non gestisce + spicchi dentro l'altro)
@@ -493,14 +499,17 @@ $.fn.chart = function($options) {
       return $env ? $env.opt : false;
     if ($options.toLowerCase() == "clear") {
       if ($env) {
-        // TODO Bisogna chiamare il destroy delle feature?
+        if ($.elycharts.featuresmanager) $.elycharts.featuresmanager.clear($env);
         $env.paper.clear();
+        $env.cache = false;
         this.html("");
         this.data('elycharts_env', false);
       }
     }
+    return this;
   }
-  else if (!$env) {
+  
+  if (!$env) {
     // First call, initialization
 
     if ($options)
@@ -511,10 +520,7 @@ $.fn.chart = function($options) {
       return false;
     }
     $env = _initEnv(this, $options);
-    
-    _processGenericConfig($env, $options);
-    $env.pieces = $.elycharts[$env.opt.type].draw($env);
-    
+
     this.data('elycharts_env', $env);
     
   } else {
@@ -525,9 +531,12 @@ $.fn.chart = function($options) {
     $env.opt = $.extend(true, $env.opt, $options);
     $env.newopt = $options;
     
-    _processGenericConfig($env, $options);
-    $env.pieces = $.elycharts[$env.opt.type].draw($env);
   }
+  
+  $env.cache = $options['enableInternalCaching'] ? {} : false;
+  
+  _processGenericConfig($env, $options);
+  $env.pieces = $.elycharts[$env.opt.type].draw($env);
   
   return this;
 }
@@ -577,7 +586,7 @@ function _extendAndNormalizeOptions($options) {
         $.elycharts.templates[k] = $.elysia_charts.templates[k];
   }
 
-  // TODO Optimize extend cicle
+  // TODO Optimize extend cycle
   while ($options.template) {
     var d = $options.template;
     delete $options.template;
@@ -613,26 +622,14 @@ function _normalizeOptions($options, $fullopt) {
   }
   
   if ($options.defaultSeries) {
-    var deftype = $fullopt.type != 'line' ? $fullopt.type : ($options.defaultSeries.type ? $options.defaultSeries.type : ($fullopt.defaultSeries.type ? $fullopt.defaultSeries.type : 'line'));
-    _normalizeOptionsColor($options.defaultSeries, deftype, $fullopt);
-    if ($options.defaultSeries.stackedWith) {
-      $options.defaultSeries.stacked = $options.defaultSeries.stackedWith;
-      delete $options.defaultSeries.stackedWith;
-    }
+    var plotType = $options.defaultSeries.type ? $options.defaultSeries.type : ($fullopt.defaultSeries.type ? $fullopt.defaultSeries.type : $fullopt.type);
+    _normalizeOptionsSerie($options.defaultSeries, $fullopt.type, plotType, $fullopt);
   }
     
   if ($options.series)
     for (var serie in $options.series) {
-      var type = $fullopt.type != 'line' ? $fullopt.type : ($options.series[serie].type ? $options.series[serie].type : ($fullopt.series[serie].type ? $fullopt.series[serie].type : (deftype ? deftype : 'line')));
-      _normalizeOptionsColor($options.series[serie], type, $fullopt);
-      if ($options.series[serie].values)
-        for (var value in $options.series[serie].values)
-          _normalizeOptionsColor($options.series[serie].values[value], type, $fullopt);
-      
-      if ($options.series[serie].stackedWith) {
-        $options.series[serie].stacked = $options.series[serie].stackedWith;
-        delete $options.series[serie].stackedWith;
-      }
+      var seriePlotType = $options.series[serie].type ? $options.series[serie].type : ($fullopt.series[serie].type ? $fullopt.series[serie].type : (plotType ? plotType : $fullopt.type));
+      _normalizeOptionsSerie($options.series[serie], $fullopt.type, seriePlotType, $fullopt);
     }
     
   if ($options.type == 'line') {
@@ -674,23 +671,45 @@ function _normalizeOptions($options, $fullopt) {
   return $options;
 }
 
+
+/**
+* Manage "color" attribute, the stackedWith legacy and values "color" properties.
+* @param $section Section part of external conf passed
+* @param $type Chart type
+* @param $plotType for line chart can be "line" or "bar", for other types is equal to chart type.
+*/
+function _normalizeOptionsSerie($section, $type, $plotType, $fullopt) {
+  /*
+  _normalizeOptionsColor($section, $type, $plotType, $fullopt);
+  if ($section.values)
+    for (var value in $section.values)
+      _normalizeOptionsColor($section.values[value], $type, $plotType, $fullopt);
+  */
+    
+  if ($section.stackedWith) {
+    $section.stacked = $section.stackedWith;
+    delete $section.stackedWith;
+  }
+}
+
 /**
 * Manage "color" attribute.
 * @param $section Section part of external conf passed
-* @param $type Type of plot (for line chart can be "line" or "bar", for other types is equal to chart type)
+* @param $type Chart type
+* @param $plotType for line chart can be "line" or "bar", for other types is equal to chart type.
 */
-function _normalizeOptionsColor($section, $type, $fullopt) {
+function _normalizeOptionsColor($section, $type, $plotType, $fullopt) {
   if ($section.color) {
     var color = $section.color;
     
     if (!$section.plotProps)
       $section.plotProps = {};
-    
-    if ($type == 'line' || $type == 'bar') {
+
+    if ($type == 'line' || $type == 'pie') {
       if ($section.plotProps && !$section.plotProps.stroke && !$fullopt.defaultSeries.plotProps.stroke)
         $section.plotProps.stroke = color;
     }
-    if ($type == 'bar') {
+    if (($type == 'line' && $plotType == 'bar') || $type == 'pie') {
       if ($section.plotProps && !$section.plotProps.fill && !$fullopt.defaultSeries.plotProps.fill)
         $section.plotProps.fill = color;
     }
@@ -710,7 +729,7 @@ function _normalizeOptionsColor($section, $type, $fullopt) {
     if ($section.legend.dotProps && !$section.legend.dotProps.fill)
       $section.legend.dotProps.fill = color;
       
-    if ($type == 'line') {
+    if ($type == 'line' && $plotType == 'line') {
       if (!$section.dotProps)
         $section.dotProps = {};
       if ($section.dotProps && !$section.dotProps.fill && !$fullopt.defaultSeries.dotProps.fill)
@@ -859,6 +878,42 @@ $.elycharts.common = {
   },
   
   /**
+   * Can be called for a whole serie or for a given index of the serie.
+   * returns the color for that item considering valuesPalette, seriesPalette and inheritance
+   */
+  getItemColor : function(env, serie, index) {
+    var props = this.areaProps(env, 'Series', serie, index);
+    if (props.color) return props.color;
+    if (index !== false && props.valuesPalette) return props.valuesPalette[index % props.valuesPalette.length];
+    if (env.opt.seriesPalette) {
+      var serieIndex = 0;
+      for(seriekey in env.opt.values) {
+        if (serie == seriekey) return env.opt.seriesPalette[serieIndex % env.opt.seriesPalette.length];
+        else serieIndex++;
+      }
+    }
+  },
+  
+  /**
+   * Given an expandKey as array of array it sets the color to the nested tree unless it is already defined.
+   * So [ [ 'parent', 'child' ], [ 'item' ] ] will try to put color in props.parent.child and props.item unless
+   * they already exists.
+   */
+  colorize : function(env, props, expandKeys, color) {
+    if (color) {
+   	  for (k in expandKeys) {
+   	    var p = props;
+   	    var i = 0;
+   	    for (i = 0; i < expandKeys[k].length - 1; i++) {
+   	      if (!p[expandKeys[k][i]]) p[expandKeys[k][i]] = {};
+   	      p = p[expandKeys[k][i]];
+   	    }
+   	    if (!p[expandKeys[k][expandKeys[k].length-1]]) p[expandKeys[k][expandKeys[k].length-1]] = color;
+   	  }
+    }
+  },
+  
+  /**
    * Ottiene le proprietà di una "Area" definita nella configurazione (options),
    * identificata da section / serie / index / subsection, e facendo il merge
    * di tutti i defaults innestati.
@@ -866,35 +921,48 @@ $.elycharts.common = {
   areaProps : function(env, section, serie, index, subsection) {
     var props;
 
+    var sectionProps = env.opt[section.toLowerCase()];
     // TODO fare una cache e fix del toLowerCase (devono solo fare la prima lettera
     if (!subsection) {
       if (typeof serie == 'undefined' || !serie)
-        props = env.opt[section.toLowerCase()];
+        props = sectionProps;
 
       else {
-        props = this._clone(env.opt['default' + section]);
-        if (env.opt[section .toLowerCase()] && env.opt[section.toLowerCase()][serie])
-          props = this._mergeObjects(props, env.opt[section.toLowerCase()][serie]);
+    	var cacheKey = section+'/'+serie+'/'+index;
+        if (env.cache && env.cache.areaPropsCache && env.cache.areaPropsCache[cacheKey]) {
+          props = env.cache.areaPropsCache[cacheKey];
+        }
+        else {
+          props = this._clone(env.opt['default' + section]);
+          if (sectionProps && sectionProps[serie])
+            props = this._mergeObjects(props, sectionProps[serie]);
 
-        if ((typeof index != 'undefined') && index >= 0 && props['values'] && props['values'][index])
-          props = this._mergeObjects(props, props['values'][index]);
+          if ((typeof index != 'undefined') && index >= 0 && props['values'] && props['values'][index])
+            props = this._mergeObjects(props, props['values'][index]);
+
+          if (env.cache) {
+            if (!env.cache.areaPropsCache) env.cache.areaPropsCache = {}; 
+            env.cache.areaPropsCache[cacheKey] = props;
+          }
+        }
       }
 
     } else {
-      props = this._clone(env.opt[subsection.toLowerCase()]);
+      var subsectionKey = subsection.toLowerCase();
+      props = this._clone(env.opt[subsectionKey]);
       
       if (typeof serie == 'undefined' || !serie) {
-        if (env.opt[section.toLowerCase()] && env.opt[section.toLowerCase()][subsection.toLowerCase()])
-          props = this._mergeObjects(props, env.opt[section.toLowerCase()][subsection.toLowerCase()]);
+        if (sectionProps && sectionProps[subsectionKey])
+          props = this._mergeObjects(props, sectionProps[subsectionKey]);
 
       } else {
-        if (env.opt['default' + section] && env.opt['default' + section][subsection.toLowerCase()])
-          props = this._mergeObjects(props, env.opt['default' + section][subsection.toLowerCase()]);
+        if (env.opt['default' + section] && env.opt['default' + section][subsectionKey])
+          props = this._mergeObjects(props, env.opt['default' + section][subsectionKey]);
 
-        if (env.opt[section .toLowerCase()] && env.opt[section.toLowerCase()][serie] && env.opt[section.toLowerCase()][serie][subsection.toLowerCase()])
-          props = this._mergeObjects(props, env.opt[section.toLowerCase()][serie][subsection.toLowerCase()]);
+        if (sectionProps && sectionProps[serie] && sectionProps[serie][subsectionKey])
+          props = this._mergeObjects(props, sectionProps[serie][subsectionKey]);
         
-        if (props && (typeof index != 'undefined') && index > 0 && props['values'] && props['values'][index])
+        if ((typeof index != 'undefined') && index > 0 && props['values'] && props['values'][index])
           props = this._mergeObjects(props, props['values'][index]);
       }
     }
@@ -1214,7 +1282,6 @@ $.elycharts.common = {
       hasdata = true;
       break;
     }
-
     return props && hasdata ? paper.path().attr(props) : false;
   },
   
@@ -1257,8 +1324,10 @@ $.elycharts.common = {
   },
 
 
-  show : function(env, pieces) {
-    pieces = this.getSortedPathData(pieces);
+  show : function(env, origPieces) {
+    if ($.elycharts.featuresmanager) $.elycharts.featuresmanager.beforeShow(env, origPieces);
+    
+    pieces = this.getSortedPathData(origPieces);
 
     common.animationStackStart(env);
 
@@ -1346,6 +1415,8 @@ $.elycharts.common = {
     }
 
     common.animationStackEnd(env);
+    
+    if ($.elycharts.featuresmanager) $.elycharts.featuresmanager.afterShow(env, origPieces);
   },
 
   /**
@@ -1503,6 +1574,15 @@ $.elycharts.featuresmanager = {
     $.elycharts.featuresmanager.initialized = true;
   },
   
+  clear : function(env) {
+    if (!$.elycharts.featuresmanager.initialized)
+      this.init();
+    // reverse cycle over manager
+    for (var i = $.elycharts.featuresmanager.managers.length - 1; i >= 0; i--)
+      if ($.elycharts.featuresmanager.managers[i][1].clear)
+        $.elycharts.featuresmanager.managers[i][1].clear(env);
+  },
+  
   beforeShow : function(env, pieces) {
     if (!$.elycharts.featuresmanager.initialized)
       this.init();
@@ -1638,7 +1718,6 @@ TODO
 
 (function($) {
 
-var featuresmanager = $.elycharts.featuresmanager;
 var common = $.elycharts.common;
 
 /***********************************************************************
@@ -1749,7 +1828,6 @@ $.elycharts.featuresmanager.register($.elycharts.anchormanager, 30);
 
 (function($) {
 
-//var featuresmanager = $.elycharts.featuresmanager;
 var common = $.elycharts.common;
 
 /***********************************************************************
@@ -2145,7 +2223,6 @@ $.elycharts.featuresmanager.register($.elycharts.frameanimationmanager, 90);
 
 (function($) {
 
-var featuresmanager = $.elycharts.featuresmanager;
 var common = $.elycharts.common;
 
 /***********************************************************************
@@ -2224,7 +2301,6 @@ $.elycharts.featuresmanager.register($.elycharts.balloonmanager, 30);
 
 (function($) {
 
-//var featuresmanager = $.elycharts.featuresmanager;
 var common = $.elycharts.common;
 
 /***********************************************************************
@@ -2294,7 +2370,7 @@ $.elycharts.highlightmanager = {
               var d = (path[0][6] - path[0][5]) * (scale[1] - 1) / 2;
               if (d > 90)
                 d = 90;
-              path = [ [ 'SLICE', path[0][1], path[0][1], path[0][3] * scale[0], path[0][4], path[0][5] - d, path[0][6] + d ] ];
+              path = [ [ 'SLICE', path[0][1], path[0][2], path[0][3] * scale[0], path[0][4], path[0][5] - d, path[0][6] + d ] ];
               common.animationStackPush(env, piece, element, common.getSVGProps(common.preparePathShow(env, path)), props.highlight.scaleSpeed, props.highlight.scaleEasing);
 
             } else if (env.opt.type == 'funnel') {
@@ -2448,7 +2524,6 @@ $.elycharts.featuresmanager.register($.elycharts.highlightmanager, 21);
 
 (function($) {
 
-//var featuresmanager = $.elycharts.featuresmanager;
 var common = $.elycharts.common;
 
 /***********************************************************************
@@ -2582,7 +2657,6 @@ $.elycharts.featuresmanager.register($.elycharts.labelmanager, 5);
 
 (function($) {
 
-//var featuresmanager = $.elycharts.featuresmanager;
 var common = $.elycharts.common;
 
 /***********************************************************************
@@ -2596,6 +2670,8 @@ $.elycharts.legendmanager = {
       return;
 
     var props = env.opt.features.legend;
+    
+    if (props === false) return;
     
     if (props.x == 'auto') {
       var autox = 1;
@@ -2631,49 +2707,56 @@ $.elycharts.legendmanager = {
 
       for (var j = 0; j < data.length; j++) {
         var sprops = common.areaProps(env, 'Series', serie, env.opt.type == 'pie' ? j : false);
-        var dprops = $.extend(true, {}, props.dotProps);
-        if (sprops.legend && sprops.legend.dotProps)
-          dprops = $.extend(true, dprops, sprops.legend.dotProps);
-        if (!dprops.fill && env.opt.type == 'pie') {
-          if (sprops.color)
-            dprops.fill = sprops.color;
-          if (sprops.plotProps && sprops.plotProps.fill)
-            dprops.fill = sprops.plotProps.fill;
+        var computedProps = $.extend(true, {}, props);
+
+        if (sprops.legend)
+            computedProps = $.extend(true, computedProps, sprops.legend);
+        
+        var color = common.getItemColor(env, serie, env.opt.type == 'pie' ? j : false);
+        if (color) {
+          common.colorize(env, computedProps, [['dotProps', 'fill']], color);
         }
-        var dtype = sprops.legend && sprops.legend.dotType ? sprops.legend.dotType : props.dotType;
-        var dwidth = sprops.legend && sprops.legend.dotWidth ? sprops.legend.dotWidth : props.dotWidth;
-        var dheight = sprops.legend && sprops.legend.dotHeight ? sprops.legend.dotHeight : props.dotHeight;
-        var dr = sprops.legend && sprops.legend.dotR ? sprops.legend.dotR : props.dotR;
-        var tprops = sprops.legend && sprops.legend.textProps ? sprops.legend.textProps : props.textProps;
+
+        // legacy support for legend dot color inherited from pie "fill"
+        // TODO maybe we should simply remove this and leave the "color" support only
+        if (!computedProps.dotProps.fill && env.opt.type == 'pie') {
+          if (sprops.plotProps && sprops.plotProps.fill)
+            computedProps.dotProps.fill = sprops.plotProps.fill;
+        }
+        
+        var hMargin = props.margins ? props.margins[0] + props.margins[2] : 0;
+        var wMargin = props.margins ? props.margins[1] + props.margins[3] : 0;
+        var tMargin = props.margins ? props.margins[0] : 0;
+        var lMargin = props.margins ? props.margins[3] : 0;
         
         if (!props.horizontal) {
           // Posizione dell'angolo in alto a sinistra
-          h = (props.height - props.margins[0] - props.margins[2]) / legendCount;
-          w = props.width - props.margins[1] - props.margins[3];
-          x = Math.floor(props.x + props.margins[3]);
-          y = Math.floor(props.y + props.margins[0] + h * i);
+          h = (props.height - hMargin) / legendCount;
+          w = props.width - wMargin;
+          x = Math.floor(props.x + lMargin);
+          y = Math.floor(props.y + tMargin + h * i);
         } else {
-          h = props.height - props.margins[0] - props.margins[2];
+          h = props.height - hMargin;
           if (!props.itemWidth || props.itemWidth == 'fixed') {
-            w = (props.width - props.margins[1] - props.margins[3]) / legendCount;
-            x = Math.floor(props.x + props.margins[3] + w * i);
+            w = (props.width - wMargin) / legendCount;
+            x = Math.floor(props.x + lMargin + w * i);
           } else {
-            w = (props.width - props.margins[1] - props.margins[3]) - wauto;
-            x = props.x + props.margins[3] + wauto;
+            w = (props.width - wMargin) - wauto;
+            x = props.x + lMargin + wauto;
           }
-          y = Math.floor(props.y + props.margins[0]);
+          y = Math.floor(props.y + tMargin);
         }
         
-        if (dtype == "rect") {
-          items.push(common.showPath(env, [ [ 'RECT', props.dotMargins[0] + x, y + Math.floor((h - dheight) / 2), props.dotMargins[0] + x + dwidth, y + Math.floor((h - dheight) / 2) + dheight, dr ] ]).attr(dprops));
-          xd = props.dotMargins[0] + dwidth + props.dotMargins[1];
-        } else if (dtype == "circle") {
-          items.push(common.showPath(env, [ [ 'CIRCLE', props.dotMargins[0] + x + dr, y + (h / 2), dr ] ]).attr(dprops));
+        if (computedProps.dotType == "rect") {
+          items.push(common.showPath(env, [ [ 'RECT', props.dotMargins[0] + x, y + Math.floor((h - computedProps.dotHeight) / 2), props.dotMargins[0] + x + computedProps.dotWidth, y + Math.floor((h - computedProps.dotHeight) / 2) + computedProps.dotHeight, computedProps.dotR ] ]).attr(computedProps.dotProps));
+          xd = props.dotMargins[0] + computedProps.dotWidth + props.dotMargins[1];
+        } else if (computedProps.dotType == "circle") {
+          items.push(common.showPath(env, [ [ 'CIRCLE', props.dotMargins[0] + x + computedProps.dotR, y + (h / 2), dr ] ]).attr(computedProps.dotProps));
           xd = props.dotMargins[0] + dr * 2 + props.dotMargins[1];
         }
         
         var text = data[j];
-        var t = common.showPath(env, [ [ 'TEXT', text, x + xd, y + Math.ceil(h / 2) + (Raphael.VML ? 2 : 0) ] ]).attr({"text-anchor" : "start"}).attr(tprops); //.hide();
+        var t = common.showPath(env, [ [ 'TEXT', text, x + xd, y + Math.ceil(h / 2) + (Raphael.VML ? 2 : 0) ] ]).attr({"text-anchor" : "start"}).attr(computedProps.textProps); //.hide();
         items.push(t);
         while (t.getBBox().width > (w - xd) && t.getBBox().width > 10) {
           text = text.substring(0, text.length - 1);
@@ -2735,19 +2818,24 @@ var common = $.elycharts.common;
 
 $.elycharts.mousemanager = {
 
-  afterShow : function(env, pieces) {
-    if (!env.opt.interactive)
-      return;
-      
+  clear : function(env) {
     if (env.mouseLayer) {
       env.mouseLayer.remove();
       env.mouseLayer = null;
+      env.mousePaper.clear();
       env.mousePaper.remove();
       env.mousePaper = null;
       env.mouseTimer = null;
       env.mouseAreas = null;
-      // Meglio fare anche l'unbind???
+      // NOTE: do we also need to unbind mouseover/mouseout from areas or is this handled automatically by Raphael?
     }
+  },
+  
+  afterShow : function(env, pieces) {
+    if (!env.opt.interactive)
+      return;
+      
+    this.clear(env);
 
     env.mouseLayer = $('<div></div>').css({position : 'absolute', 'z-index' : 20, opacity : 0}).prependTo(env.container);
     env.mousePaper = common._RaphaelInstance(env.mouseLayer.get(0), env.opt.width, env.opt.height);
@@ -2953,9 +3041,6 @@ $.elycharts.featuresmanager.register($.elycharts.mousemanager, 0);
 
 (function($) {
 
-//var featuresmanager = $.elycharts.featuresmanager;
-//var common = $.elycharts.common;
-
 /***********************************************************************
  * FEATURE: SHADOW
  **********************************************************************/
@@ -3008,7 +3093,6 @@ $.elycharts.featuresmanager.register($.elycharts.shadowmanager, 5);
 
 (function($) {
 
-//var featuresmanager = $.elycharts.featuresmanager;
 var common = $.elycharts.common;
 
 /***********************************************************************
@@ -3017,8 +3101,9 @@ var common = $.elycharts.common;
 
 $.elycharts.tooltipmanager = {
 
-  afterShow : function(env, pieces) {
+  clear : function(env) {
     if (env.tooltipContainer) {
+      env.tooltipFrame.clear();
       env.tooltipFrame.remove();
       env.tooltipFrame = null;
       env.tooltipFrameElement = null;
@@ -3027,6 +3112,10 @@ $.elycharts.tooltipmanager = {
       env.tooltipContainer.remove();
       env.tooltipContainer = null;
     }
+  },
+  
+  afterShow : function(env, pieces) {
+  	this.clear(env);
     
     if (!$.elycharts.tooltipid)
       $.elycharts.tooltipid = 0;
@@ -3141,6 +3230,12 @@ $.elycharts.tooltipmanager = {
       props = $.extend(true, props, env.opt.series.empty.tooltip);
     if (!props || !props.active)
       return false;
+    
+    var color = common.getItemColor(env, serie, index);
+    if (color) {
+      props = common._clone(props);
+      common.colorize(env, props, [['frameProps', 'stroke']], color);
+    }
 
     var tip = this.getTip(env, serie, index);
     if (!tip)
@@ -3169,6 +3264,12 @@ $.elycharts.tooltipmanager = {
       props = $.extend(true, props, env.opt.series.empty.tooltip);
     if (!props || !props.active)
       return false;
+
+    var color = common.getItemColor(env, serie, index);
+    if (color) {
+      props = common._clone(props);
+      common.colorize(env, props, [['frameProps', 'stroke']], color);
+    }
 
     var tip = this.getTip(env, serie, index);
     if (!tip)
@@ -3213,7 +3314,6 @@ $.elycharts.featuresmanager.register($.elycharts.tooltipmanager, 20);
 
 (function($) {
 
-var featuresmanager = $.elycharts.featuresmanager;
 var common = $.elycharts.common;
 
 /***********************************************************************
@@ -3281,9 +3381,7 @@ $.elycharts.barline = {
         });
     }
       
-    featuresmanager.beforeShow(env, pieces);
     common.show(env, pieces);
-    featuresmanager.afterShow(env, pieces);
     return pieces;
   }
 };
@@ -3300,7 +3398,6 @@ $.elycharts.barline = {
 
 (function($) {
 
-var featuresmanager = $.elycharts.featuresmanager;
 var common = $.elycharts.common;
 
 /***********************************************************************
@@ -3331,9 +3428,7 @@ $.elycharts.funnel = {
       var pieces = this.pieces(env, serie, 0, 1, 1, values);
     }
       
-    featuresmanager.beforeShow(env, pieces);
     common.show(env, pieces);
-    featuresmanager.afterShow(env, pieces);
     return pieces;
   },
   
@@ -3429,7 +3524,6 @@ $.elycharts.funnel = {
 
 (function($) {
 
-var featuresmanager = $.elycharts.featuresmanager;
 var common = $.elycharts.common;
 
 /***********************************************************************
@@ -3438,6 +3532,17 @@ var common = $.elycharts.common;
 
 $.elycharts.line = {
   init : function($env) {
+  },
+  
+  _getColorizationKey : function($type) {
+    if ($type == 'line') return [
+      ['plotProps', 'stroke'],
+      ['dotProps', 'fill'],
+      ['fillProps', 'fill']
+    ]; else return [
+      ['plotProps', 'stroke'],
+      ['plotProps', 'fill']
+    ];
   },
   
   draw : function(env) {
@@ -3621,6 +3726,8 @@ $.elycharts.line = {
       props = common.areaProps(env, 'Series', serie);
       plot = plots[serie];
 
+      common.colorize(env, props, this._getColorizationKey(props.type), common.getItemColor(env, serie));
+      
       // TODO Settare una props in questo modo potrebbe incasinare la gestione degli update parziali (se iso "lineCenter: auto" e passo da un grafico con indexCenter = bar a uno con indexCenter = line)
       if (props.lineCenter && props.lineCenter == 'auto')
         props.lineCenter = (env.indexCenter == 'bar');
@@ -3639,6 +3746,8 @@ $.elycharts.line = {
           for (i = 0, ii = labels.length; i < ii; i++)
             if (plot.to.length > i) {
               var indexProps = common.areaProps(env, 'Series', serie, i);
+
+              common.colorize(env, indexProps, this._getColorizationKey(props.type), common.getItemColor(env, serie, i));
 
               var d = plot.to[i] > plot.max ? plot.max : (plot.to[i] < plot.min ? plot.min : plot.to[i]);
               var x = Math.round((props.lineCenter ? deltaBarX / 2 : 0) + opt.margins[3] + i * (props.lineCenter ? deltaBarX : deltaX));
@@ -3673,12 +3782,14 @@ $.elycharts.line = {
           
         } else {
           pieceBar = [];
-          
           // BAR CHART
           for (i = 0, ii = labels.length; i < ii; i++)
             if (plot.to.length > i) {
               if (plot.from[i] != plot.to[i]) {
-                var bwid = Math.floor((deltaBarX - opt.barMargins) / (1 + (env.barno - 1) * (100 - opt.barOverlapPerc) / 100));
+                var indexProps = common.areaProps(env, 'Series', serie, i);
+                common.colorize(env, indexProps, this._getColorizationKey(props.type), common.getItemColor(env, serie, i));
+            	  
+            	var bwid = Math.floor((deltaBarX - opt.barMargins) / (1 + (env.barno - 1) * (100 - opt.barOverlapPerc) / 100));
                 var bpad = bwid * (100 - props.barWidthPerc) / 200;
                 var boff = opt.barMargins / 2 + plot.barno * (bwid * (100 - opt.barOverlapPerc) / 100);
 
@@ -3686,7 +3797,7 @@ $.elycharts.line = {
                 var y1 = Math.round(opt.height - opt.margins[2] - deltaY * (plot.to[i] - plot.min));
                 var y2 = Math.round(opt.height - opt.margins[2] - deltaY * (plot.from[i] - plot.min));
 
-                pieceBar.push({path : [ [ 'RECT', x1, y1, x1 + bwid - bpad * 2, y2 ] ], attr : props.plotProps });
+                pieceBar.push({path : [ [ 'RECT', x1, y1, x1 + bwid - bpad * 2, y2 ] ], attr : indexProps.plotProps });
               } else
                 pieceBar.push({path : false, attr : false });
             }
@@ -3706,9 +3817,7 @@ $.elycharts.line = {
           pieces.push({ section : 'Series', serie : serie, subSection : 'Dot', path : false, attr : false });
       }
     }
-    featuresmanager.beforeShow(env, pieces);
     common.show(env, pieces);
-    featuresmanager.afterShow(env, pieces);
     return pieces;
   }, 
   
@@ -4040,7 +4149,6 @@ $.elycharts.line = {
 
 (function($) {
 
-var featuresmanager = $.elycharts.featuresmanager;
 var common = $.elycharts.common;
 
 /***********************************************************************
@@ -4055,11 +4163,11 @@ $.elycharts.pie = {
     //var paper = env.paper;
     var opt = env.opt;
     
-    var w = env.opt.width;
-    var h = env.opt.height;
+    var w = env.opt.width - env.opt.margins[1] - env.opt.margins[3];
+    var h = env.opt.height - env.opt.margins[0] - env.opt.margins[2];
     var r = env.opt.r ? env.opt.r : Math.floor((w < h ? w : h) / 2.5);
-    var cx = env.opt.cx ? env.opt.cx : Math.floor(w / 2);
-    var cy = env.opt.cy ? env.opt.cx : Math.floor(h / 2);
+    var cx = (env.opt.cx ? env.opt.cx : Math.floor(w / 2)) + env.opt.margins[3];
+    var cy = (env.opt.cy ? env.opt.cy : Math.floor(h / 2)) + env.opt.margins[0];
     
     var cnt = 0, i, ii, serie, plot, props;
     for (serie in opt.values) {
@@ -4070,6 +4178,7 @@ $.elycharts.pie = {
       };
       env.plots[serie] = plot;
       var serieProps = common.areaProps(env, 'Series', serie);
+      common.colorize(env, serieProps, [['plotProps','stroke'],['plotProps','fill']], common.getItemColor(env, serie));
       if (serieProps.visible) {
         plot.visible = true;
         cnt ++;
@@ -4077,6 +4186,7 @@ $.elycharts.pie = {
         for (i = 0, ii = plot.values.length; i < ii; i++)
           if (plot.values[i] > 0) {
             props = common.areaProps(env, 'Series', serie, i);
+            common.colorize(env, props, [['plotProps','stroke'],['plotProps','fill']], common.getItemColor(env, serie, i));
             if (typeof props.inside == 'undefined' || props.inside < 0)
               plot.total += plot.values[i];
           }
@@ -4103,6 +4213,7 @@ $.elycharts.pie = {
         if (plot.total == 0) {
           env.emptySeries = true;
           props = common.areaProps(env, 'Series', 'empty');
+          common.colorize(env, props, [['plotProps','stroke'],['plotProps','fill']], common.getItemColor(env, serie));
           paths.push({ path : [ [ 'CIRCLE', cx, cy, r ] ], attr : props.plotProps });
 
         } else {
@@ -4111,6 +4222,7 @@ $.elycharts.pie = {
             var value = plot.values[i];
             if (value > 0) {
               props = common.areaProps(env, 'Series', serie, i);
+              common.colorize(env, props, [['plotProps','stroke'],['plotProps','fill']], common.getItemColor(env, serie, i));
               if (typeof props.inside == 'undefined' || props.inside < 0) {
                 angle += anglelimit;
                 angleplus = 360 * value / plot.total;
@@ -4151,9 +4263,7 @@ $.elycharts.pie = {
       pieces.push({ section : 'Series', serie : serie, subSection : 'Plot', paths : paths , mousearea : 'paths'});
     }
     
-    featuresmanager.beforeShow(env, pieces);
     common.show(env, pieces);
-    featuresmanager.afterShow(env, pieces);
     return pieces;
   }
 }

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+<script src="../lib/DP_Debug.js" type="text/javascript" charset="utf-8"></script>
+<script src="../lib/jquery.js" type="text/javascript" charset="utf-8"></script>
+<script src="../lib/raphael.js" type="text/javascript" charset="utf-8"></script>
+
+<script src="../src/elycharts_core.js" type="text/javascript" charset="utf-8"></script>
+<script src="../src/elycharts_manager_anchor.js" type="text/javascript" charset="utf-8"></script>
+<script src="../src/elycharts_manager_animation.js" type="text/javascript" charset="utf-8"></script>
+<script src="../src/elycharts_manager_balloon.js" type="text/javascript" charset="utf-8"></script>
+<script src="../src/elycharts_manager_highlight.js" type="text/javascript" charset="utf-8"></script>
+<script src="../src/elycharts_manager_label.js" type="text/javascript" charset="utf-8"></script>
+<script src="../src/elycharts_manager_legend.js" type="text/javascript" charset="utf-8"></script>
+<script src="../src/elycharts_manager_mouse.js" type="text/javascript" charset="utf-8"></script>
+<script src="../src/elycharts_manager_shadow.js" type="text/javascript" charset="utf-8"></script>
+<script src="../src/elycharts_manager_tooltip.js" type="text/javascript" charset="utf-8"></script>
+<script src="../src/elycharts_chart_barline.js" type="text/javascript" charset="utf-8"></script>
+<script src="../src/elycharts_chart_funnel.js" type="text/javascript" charset="utf-8"></script>
+<script src="../src/elycharts_chart_line.js" type="text/javascript" charset="utf-8"></script>
+<script src="../src/elycharts_chart_pie.js" type="text/javascript" charset="utf-8"></script>
+<script src="../src/elycharts_defaults.js" type="text/javascript" charset="utf-8"></script>
+    
+  
+  <style type='text/css'>
+    /* style up the tooltips content */
+.charlab { font-face: helvetica, arial; color: black; margin: 0; }
+.date { font-face: helvetica, arial; font-weight: normal; color: #5AF; margin: 0; font-size: 10px; line-height: 12px; }
+.label { text-align: center;  }
+
+  </style>
+  
+
+
+<script type='text/javascript'>//<![CDATA[ 
+$(window).load(function(){
+// this is a reausable template definition. scroll down for the real chart call.
+$.elycharts.templates['raphael_analytics'] = {
+    type: "line",
+    margins: [10, 15, 25, 15],
+    defaultSeries: {
+        plotProps: {
+            "stroke-width": 4
+        },
+        dot: true,
+        rounded: false,
+        dotProps: {
+            stroke: "white",
+            size: 5,
+            "stroke-width": 1
+        },
+        startAnimation: { // use an animation to start plotting the chart
+            active: true,
+            type: "avg",
+            // start from the average line.
+            speed: 1000,
+            // animate in 1 second.
+            easing: ">"
+        },
+        stepAnimation : { // defines an animation for data updates
+            speed : 2000,
+            delay : 0,
+            easing : '<>'
+        },
+        highlight: {
+            scaleSpeed: 0,
+            // do not animate the dot scaling. instant grow.
+            scaleEasing: '',
+            scale: 1.2 // enlarge the dot on hover
+        },
+        tooltip: {
+            height: 35,
+            width: 80,
+            padding: [3, 3],
+            offset: [-15, -10],
+            frameProps: {
+                opacity: 0.75,
+                /* fill: "white", */
+                stroke: "#CCC"
+
+            }
+        }
+    },
+    series: {
+        serie1: {
+            fill: true,
+            fillProps: { opacity: .1 },
+            color: "#26B",
+            // make sure our serie 1 uses black dots and grey tooltip borders, otherwise they are inherithed by the serie color.
+        },
+        serie2: {
+            axis: 'r',
+            color: "#F80",
+            plotProps: {
+                "stroke-width": 2
+            },
+            dotProps: {
+                stroke: "white",
+                size: 3,
+                "stroke-width": 1
+            }
+        }
+        
+    },
+    defaultAxis: {
+        labels: true,
+        labelsProps: {
+            fill: "#888",
+            "font-size": "12px"
+        },
+        labelsDistance: 14
+    },
+    axis: {
+        l: { // left axis
+            labels: true,
+            labelsDistance: 0,
+            labelsSkip: 1,
+            labelsAnchor: "start",
+            labelsMargin: 15,
+            labelsProps: {
+                fill: "#AAA",
+                "font-size": "11px",
+                "font-weight": "bold"
+            }
+        },
+        r: { // left axis
+            labels: true,
+            labelsDistance: 0,
+            labelsSkip: 1,
+            labelsAnchor: "end",
+            labelsMargin: 15,
+            labelsProps: {
+                fill: "#AAA",
+                "font-size": "11px",
+                "font-weight": "bold"
+            }
+        }
+    },
+    features: {
+        legend: false,
+        mousearea: {
+            type: 'axis'
+        },
+        tooltip: {
+            positionHandler : function(env, tooltipConf, mouseAreaData, suggestedX, suggestedY) { return [mouseAreaData.event.pageX, mouseAreaData.event.pageY, true] }
+        },
+        grid: {
+            draw: true,
+            // draw both x and y grids
+            forceBorder: [true, false, true, false],
+            // force grid for external border
+            ny: 2,
+            // use 10 divisions for y grid
+            nx: 5,
+            // 10 divisions for x grid
+            props: {
+                stroke: "#CCC" // color for the grid
+            }
+        }
+    }
+}
+
+// the chart values
+var thevalues = [8, 25, 127, 25, 54, 59, 79, 47, 27, 44, 44, 51, 56, 83, 12, 91, 52, 12, 40, 8, 60, 29, 7, 33, 56, 25, 1, 78, 70, 68, 2];
+var thevalues2 = [1821, 1575, 1127, 4525, 1254, 7559, 4739, 1457, 2671, 4547, 1244, 4351, 856, 5683, 912, 6791, 3152, 1723, 4560, 1238, 7660, 4239, 3447, 4353, 5643, 2235, 1234, 7548, 7230, 1268, 2452];
+
+// let's loop to build tooltips and x labels.
+var thetooltips = new Array(thevalues.length);
+var thelabels = new Array(thevalues.length);
+for (var i = 0; i < thevalues.length; i++) {
+    thetooltips[i] = "<div class='label'><p class='charlab'>" + thevalues[i] + " hits</p><p class='date'>" + (i + 1) + " september</p></div>";
+    thelabels[i] = i + 1;
+}
+
+// build the chart with 1 serie using the above template.
+$("#chart").chart({
+    template: "raphael_analytics",
+    tooltips: thetooltips,
+    values: {
+        serie1: thevalues,
+        serie2: thevalues2
+    },
+    legend : {
+      serie1 : "Visits",
+      serie2 : "Page views"
+     },
+    labels: thelabels,
+});
+
+});//]]>  
+
+</script>
+
+
+</head>
+<body>
+  <!-- the div where we are going to plot -->
+<div id="chart" style="width: 100%; height: 300px"></div>
+<script language="javascript">
+    function newData() {
+        var thevalues = new Array(31);
+        var thevalues2 = new Array(31);
+        for (var i = 0; i < thevalues.length; i++) {
+            thevalues[i] = Math.floor(Math.random()* (i > 0 ? thevalues[i-1]*1.5+10 : 100));
+            thevalues2[i] = Math.floor(Math.random()* (i > 0 ? thevalues2[i-1]*1.5+100 : 1000));
+        }
+        $("#chart").chart({
+            values: {
+                serie1: thevalues,
+                serie2: thevalues2
+            }
+        });
+    }
+</script>
+<a href="javascript:newData()">update data</a>
+
+
+  
+</body>
+
+
+</html>
+

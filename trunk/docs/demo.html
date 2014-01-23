@@ -23,11 +23,12 @@
 <script>
 $(document).ready(function(){
 	var values = [Math.random() * 100,Math.random() * 100,Math.random() * 100];
+	var values2 = [Math.random() * 100,Math.random() * 100,Math.random() * 100,Math.random() * 100,Math.random() * 100];
 	//values[2] = values[1] * Math.random();
 	
 	//values = [1000, 5];
 
-	var tooltips = ['tip1','tip2','tip3'];
+	var tooltips = ['tip1','tip2','tip3','tip4','tip5'];
 	$("#holder1").chart({
 		type : 'pie', values : values, tooltips : tooltips,
 		labels : ['lab1','lab2','lab3'],
@@ -60,12 +61,12 @@ $(document).ready(function(){
 	$("#holder5").chart({
 		type : 'pie',
 		interactive : false,
-		values : { root : values }, tooltips : { root : tooltips },
-		labels : ['lab1','lab2','lab3'],
+		values : { root : values2 }, tooltips : { root : tooltips },
+		labels : ['lab1','lab2','lab3','lab4','lab5'],
 		defaultSeries : {
 			plotProps : { stroke : 'white', "stroke-width" : .5, "fill-opacity" : 1 }
 		},
-		series : { root : { values : [
+		series : { root : { valuesPalette : ['black', 'orange'], values : [
 			{ color : 'red' }, // TODO: color: red non va
 			{ color : 'yellow', plotProps : { fill : 'green' } },
 			{ color : 'blue', plotProps : { fill : 'blue' } },
@@ -93,13 +94,13 @@ $(document).ready(function(){
 		defaultSeries : {
 			lineCenter : 1,
 			barWidthPerc : 75,
-			color: 'yellow'
 		},
+		seriesPalette : [ 'orange', 'brown', 'blue' ],
 		series : [
 			{type : 'bar', axis : 'r' },
 			{type : 'bar', axis : 'r', color : 'green', stackedWith : 0 },
-			{type : 'bar', axis : 'l' , color : 'red'},
-			{type : 'line', axis : 'l', color : 'gray', plotProps : { "stroke-width" : 2 } }
+			{type : 'bar', axis : 'l' , acolor : 'red'},
+			{type : 'line', axis : 'l', acolor : 'gray', plotProps : { "stroke-width" : 2 } }
 		],
 		barMargins : 10,
 		labelsCenter : 1,
@@ -114,6 +115,19 @@ $(document).ready(function(){
 		}
 	});
 	
+	$("#holder6").chart({ type : 'line',
+		values : { myserie : [ 5, 3, 7 ], mysecondserie : [ 1, 5, 8 ], mythirdserie : [ 7, 3, 1 ], myfourthserie : [ 1, 2, 3 ] },
+		seriesPalette : [ 'orange', 'brown' ],
+		defaultSeries : { type: 'bar' },
+    margins: [10, 15, 25, 15],
+		series : { mythirdserie : { color: 'blue' }, mysecondserie : { valuesPalette: [ 'red', 'yellow' ] } },
+		features: { legend: false }
+	});
+	
+	$("#holder6").chart({
+	  series : { mythirdserie : { fillProps: { fill: 'black' } }, mysecondserie : { valuesPalette: [ 'green' ] } },
+	  features: { legend: false }
+	});
 /*	
 	var labels = [
 		0, // Si vede
@@ -195,7 +209,7 @@ body {
 	height: 20px;
 	width: 100px;
 }
-#holder5 {
+#holder5, #holder6 {
 	float: left;
 	height: 100px;
 	width: 100px;
@@ -214,5 +228,6 @@ body {
 	<div id="holder5"></div>
 	<div id="holder4"></div>
 	<div id="log" style="clear:both"></div>
+	<div id="holder6"></div>
 </body>
 </html>

@@ -77,7 +77,7 @@ $.elycharts.highlightmanager = {
               var d = (path[0][6] - path[0][5]) * (scale[1] - 1) / 2;
               if (d > 90)
                 d = 90;
-              path = [ [ 'SLICE', path[0][1], path[0][1], path[0][3] * scale[0], path[0][4], path[0][5] - d, path[0][6] + d ] ];
+              path = [ [ 'SLICE', path[0][1], path[0][2], path[0][3] * scale[0], path[0][4], path[0][5] - d, path[0][6] + d ] ];
               common.animationStackPush(env, piece, element, common.getSVGProps(common.preparePathShow(env, path)), props.highlight.scaleSpeed, props.highlight.scaleEasing);
 
             } else if (env.opt.type == 'funnel') {

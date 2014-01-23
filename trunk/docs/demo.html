@@ -32,24 +32,27 @@ $(document).ready(function(){
 		type : 'pie', values : values, tooltips : tooltips,
 		labels : ['lab1','lab2','lab3'],
 		legend : ['legenda un bel po lunga','leg2','leg3'],
+		margins: [30,0,0,20],
 		defaultSeries : {
 			//sectorOnMouseOver : function(element, env, i, props) { element.animate({scale: [1.1, 1.1, env.opt.cx, env.opt.cy]}, 500, ">"); },
 			//sectorOnMouseOut : function(element, env, i, props) { element.animate({scale: [1, 1, env.opt.cx, env.opt.cy]}, 500, ">"); },
 			//tooltipProps : { highlightTarget : 0 },
-			plotProps : { opacity : .6 },
+			color: 'green',
+			plotProps : { opacity : .6, stroke: 'white', 'stroke-width': 3 },
 			label : { active : true },
 			highlight : { scale : [ 1.1, 1] }
 			//labelShowOnMouseOver : 1
 		},
 		series : { root : { values : [
 			{ color : 'red' },
-			{ color : 'green' },
+			{  },
 			{ color : 'blue' },
 		] }},
 		features : {
 			legend : {
 				x : 10, y : 10, width : 100, height : 100,
-				defaultDotProps : { type : 'rect', r : 5} 
+				defaultDotProps : { type : 'rect', r : 5},
+				borderProps : { opacity : .6 }
 			}
 		}
 	});
@@ -63,8 +66,8 @@ $(document).ready(function(){
 			plotProps : { stroke : 'white', "stroke-width" : .5, "fill-opacity" : 1 }
 		},
 		series : { root : { values : [
-			{ color : 'red', plotProps : { fill : 'red' } }, // TODO: color: red non va
-			{ color : 'green', plotProps : { fill : 'green' } },
+			{ color : 'red' }, // TODO: color: red non va
+			{ color : 'yellow', plotProps : { fill : 'green' } },
 			{ color : 'blue', plotProps : { fill : 'blue' } },
 		] }},
 		features : {
@@ -89,10 +92,11 @@ $(document).ready(function(){
 		//gridNX : 10,
 		defaultSeries : {
 			lineCenter : 1,
-			barWidthPerc : 75
+			barWidthPerc : 75,
+			color: 'yellow'
 		},
 		series : [
-			{type : 'bar', axis : 'r', color : 'blue'},
+			{type : 'bar', axis : 'r' },
 			{type : 'bar', axis : 'r', color : 'green', stackedWith : 0 },
 			{type : 'bar', axis : 'l' , color : 'red'},
 			{type : 'line', axis : 'l', color : 'gray', plotProps : { "stroke-width" : 2 } }

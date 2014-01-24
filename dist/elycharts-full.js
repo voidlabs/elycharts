@@ -427,6 +427,8 @@ $.elycharts.templates = {
     //cx : 0, cy : 0,
     // Raggio della torta, se non specificato viene autodeterminato
     //r : 0
+    // Radius in percentage of the available space
+    //rPerc : 80
     // Angolo dal quale iniziare a disegnare le fette, in gradi
     startAngle : 0,
     // Disegna la torta con le fette in senso orario (invece dell'orientamento standard per gradi, in senso antiorario)
@@ -4168,7 +4170,7 @@ $.elycharts.pie = {
     
     var w = env.opt.width - env.opt.margins[1] - env.opt.margins[3];
     var h = env.opt.height - env.opt.margins[0] - env.opt.margins[2];
-    var r = env.opt.r ? env.opt.r : Math.floor((w < h ? w : h) / 2.5);
+    var r = env.opt.r ? env.opt.r : Math.floor((w < h ? w : h) / 2 * (env.opt.rPerc ? env.opt.rPerc / 100 : 0.8));
     var cx = (env.opt.cx ? env.opt.cx : Math.floor(w / 2)) + env.opt.margins[3];
     var cy = (env.opt.cy ? env.opt.cy : Math.floor(h / 2)) + env.opt.margins[0];
     

@@ -2751,8 +2751,8 @@ $.elycharts.legendmanager = {
           items.push(common.showPath(env, [ [ 'RECT', props.dotMargins[0] + x, y + Math.floor((h - computedProps.dotHeight) / 2), props.dotMargins[0] + x + computedProps.dotWidth, y + Math.floor((h - computedProps.dotHeight) / 2) + computedProps.dotHeight, computedProps.dotR ] ]).attr(computedProps.dotProps));
           xd = props.dotMargins[0] + computedProps.dotWidth + props.dotMargins[1];
         } else if (computedProps.dotType == "circle") {
-          items.push(common.showPath(env, [ [ 'CIRCLE', props.dotMargins[0] + x + computedProps.dotR, y + (h / 2), dr ] ]).attr(computedProps.dotProps));
-          xd = props.dotMargins[0] + dr * 2 + props.dotMargins[1];
+          items.push(common.showPath(env, [ [ 'CIRCLE', props.dotMargins[0] + x + computedProps.dotR, y + (h / 2), computedProps.dotR ] ]).attr(computedProps.dotProps));
+          xd = props.dotMargins[0] + computedProps.dotR * 2 + props.dotMargins[1];
         }
         
         var text = data[j];

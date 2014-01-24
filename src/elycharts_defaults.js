@@ -418,6 +418,8 @@ $.elycharts.templates = {
     //cx : 0, cy : 0,
     // Raggio della torta, se non specificato viene autodeterminato
     //r : 0
+    // Radius in percentage of the available space
+    //rPerc : 80
     // Angolo dal quale iniziare a disegnare le fette, in gradi
     startAngle : 0,
     // Disegna la torta con le fette in senso orario (invece dell'orientamento standard per gradi, in senso antiorario)

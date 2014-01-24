@@ -3232,10 +3232,12 @@ $.elycharts.tooltipmanager = {
     if (!props || !props.active)
       return false;
     
-    var color = common.getItemColor(env, serie, index);
-    if (color) {
-      props = common._clone(props);
-      common.colorize(env, props, [['frameProps', 'stroke']], color);
+    if (props.frameProps) {
+      var color = common.getItemColor(env, serie, index);
+      if (color) {
+        props = common._clone(props);
+        common.colorize(env, props, [['frameProps', 'stroke']], color);
+      }
     }
 
     var tip = this.getTip(env, serie, index);

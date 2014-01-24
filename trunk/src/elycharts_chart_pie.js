@@ -103,7 +103,6 @@ $.elycharts.pie = {
                     rrstart = rstart - props.r;
                 }
               }
-              
               if (!env.opt.clockwise)
                 paths.push({ path : [ [ 'SLICE', cx, cy, rrend, rrstart, angle, angle + angleplus ] ], attr : props.plotProps });
               else

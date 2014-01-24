@@ -1,4 +1,6 @@
 v2.1.5-SNAPSHOT
+- changed pixelWorkAround to be enabled only on SVG (to be verified)
+- fixed tooltip (and mouse) management in IE compatible mode (Issue #10)
 - fixed erros when using "legend: false" or legend without margin definitions (Issue #14)
 - added support for valuesPalette and seriesPalette feature to automatically assign colors starting from a cycling palette (Issue #9) 
 - added support for single value coloring in bar charts (each column can be printed with a different color)

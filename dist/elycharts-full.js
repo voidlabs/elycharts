@@ -234,8 +234,9 @@ $.elycharts.templates = {
         speed : 'slow',
         easing : 'linear' // easing jQuery: 'linear' o 'swing'
       },
+      // used to be true
       pixelWorkAround : {
-        active : true
+        active : Raphael.svg
       },
       label : {},
       shadows : {
@@ -2837,7 +2838,7 @@ $.elycharts.mousemanager = {
       
     this.clear(env);
 
-    env.mouseLayer = $('<div></div>').css({position : 'absolute', 'z-index' : 20, opacity : 0}).prependTo(env.container);
+    env.mouseLayer = $('<div></div>').css({position : 'absolute', 'z-index' : 20, opacity : 1}).prependTo(env.container);
     env.mousePaper = common._RaphaelInstance(env.mouseLayer.get(0), env.opt.width, env.opt.height);
     var paper = env.mousePaper;
 
@@ -2938,7 +2939,7 @@ $.elycharts.mousemanager = {
       syncenv = $.elycharts.mouseareaenv[env.opt.features.mousearea.syncTag];
     }
     for (i = 0; i < env.mouseAreas.length; i++) {
-      env.mouseAreas[i].area = common.showPath(env, env.mouseAreas[i].path, paper).attr({stroke: "none", fill: "#fff", opacity: 0});
+      env.mouseAreas[i].area = common.showPath(env, env.mouseAreas[i].path, paper).attr({stroke: "#000", fill: "#fff", opacity: 0});
       
       (function(env, obj, objidx, caller, syncenv) {
         var piece = obj.piece;
@@ -4244,7 +4245,6 @@ $.elycharts.pie = {
                     rrstart = rstart - props.r;
                 }
               }
-              
               if (!env.opt.clockwise)
                 paths.push({ path : [ [ 'SLICE', cx, cy, rrend, rrstart, angle, angle + angleplus ] ], attr : props.plotProps });
               else

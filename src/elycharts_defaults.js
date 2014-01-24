@@ -225,8 +225,9 @@ $.elycharts.templates = {
         speed : 'slow',
         easing : 'linear' // easing jQuery: 'linear' o 'swing'
       },
+      // used to be true
       pixelWorkAround : {
-        active : true
+        active : Raphael.svg
       },
       label : {},
       shadows : {

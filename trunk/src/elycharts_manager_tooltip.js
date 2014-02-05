@@ -139,7 +139,7 @@ $.elycharts.tooltipmanager = {
     return tip;
   },
   
-  onMouseEnter : function(env, serie, index, mouseAreaData) {
+  _getProps : function(env, serie, index, mouseAreaData) {
     var props = mouseAreaData.props.tooltip;
     if (env.emptySeries && env.opt.series.empty)
       props = $.extend(true, props, env.opt.series.empty.tooltip);
@@ -153,10 +153,22 @@ $.elycharts.tooltipmanager = {
         common.colorize(env, props, [['frameProps', 'stroke']], color);
       }
     }
+    return props;
+  },
+  
+  _fadeOut : function(env) {
+    env.tooltipContainer.fadeOut(env.opt.features.tooltip.fadeDelay);
+  },
+  
+  onMouseEnter : function(env, serie, index, mouseAreaData) {
+    var props = this._getProps(env, serie, index, mouseAreaData);
+    if (!props) return false;
 
     var tip = this.getTip(env, serie, index);
-    if (!tip)
-      return this.onMouseExit(env, serie, index, mouseAreaData);
+    if (!tip) {
+    	this._fadeOut(env);
+    	return true;
+    }
 
     //if (!env.opt.tooltips || (serie && (!env.opt.tooltips[serie] || !env.opt.tooltips[serie][index])) || (!serie && !env.opt.tooltips[index]))
     //  return this.onMouseExit(env, serie, index, mouseAreaData);
@@ -176,27 +188,24 @@ $.elycharts.tooltipmanager = {
   },
   
   onMouseChanged : function(env, serie, index, mouseAreaData) {
-    var props = mouseAreaData.props.tooltip;
-    if (env.emptySeries && env.opt.series.empty)
-      props = $.extend(true, props, env.opt.series.empty.tooltip);
-    if (!props || !props.active)
-      return false;
-
-    var color = common.getItemColor(env, serie, index);
-    if (color) {
-      props = common._clone(props);
-      common.colorize(env, props, [['frameProps', 'stroke']], color);
-    }
+    var props = this._getProps(env, serie, index, mouseAreaData);
+    if (!props) return false;
 
     var tip = this.getTip(env, serie, index);
-    if (!tip)
-      return this.onMouseExit(env, serie, index, mouseAreaData);
+    if (!tip) {
+    	this._fadeOut(env);
+    	return true;
+    }
 
     /*if (!env.opt.tooltips || (serie && (!env.opt.tooltips[serie] || !env.opt.tooltips[serie][index])) || (!serie && !env.opt.tooltips[index]))
       return this.onMouseExit(env, serie, index, mouseAreaData);
     var tip = serie ? env.opt.tooltips[serie][index] : env.opt.tooltips[index];*/
     
     env.tooltipContainer.clearQueue();
+    
+    // NOTE: this is needed because sometimes we "fadeOut" during mouseChanged so we also have to fadeIn in that cases.
+    // For simplicity we always fadeIn every time.
+    env.tooltipContainer.fadeIn(env.opt.features.tooltip.fadeDelay);
     // Nota: Non passo da animationStackPush, i tooltip non sono legati a piece
     env.tooltipContainer.animate(this._prepareShow(env, props, mouseAreaData, tip), env.opt.features.tooltip.moveDelay, 'linear' /*swing*/);
 
@@ -204,14 +213,10 @@ $.elycharts.tooltipmanager = {
   },
   
   onMouseExit : function(env, serie, index, mouseAreaData) {
-    var props = mouseAreaData.props.tooltip;
-    if (env.emptySeries && env.opt.series.empty)
-      props = $.extend(true, props, env.opt.series.empty.tooltip);
-    if (!props || !props.active)
-      return false;
+    var props = this._getProps(env, serie, index, mouseAreaData);
+    if (!props) return false;
 
-    //env.tooltipContainer.unbind();
-    env.tooltipContainer.fadeOut(env.opt.features.tooltip.fadeDelay);
+    this._fadeOut(env);
 
     return true;
   }

@@ -65,7 +65,7 @@ $.elycharts.highlightmanager = {
               var w = path[0][3] - path[0][1];
               var h = path[0][4] - path[0][2];
               path = [ [ 'RECT', path[0][1], path[0][2] - h * (scale[1] - 1), path[0][3] + w * (scale[0] - 1), path[0][4] ] ];
-              common.animationStackPush(env, piece, element, common.getSVGProps(common.preparePathShow(env, path)), props.highlight.scaleSpeed, props.highlight.scaleEasing);
+              common.animationStackPush(env, piece, element, common.getSVGProps(env, path), props.highlight.scaleSpeed, props.highlight.scaleEasing);
             }
             else if (path[0][0] == 'CIRCLE') {
               // I pass directly new radius
@@ -78,7 +78,7 @@ $.elycharts.highlightmanager = {
               if (d > 90)
                 d = 90;
               path = [ [ 'SLICE', path[0][1], path[0][2], path[0][3] * scale[0], path[0][4], path[0][5] - d, path[0][6] + d ] ];
-              common.animationStackPush(env, piece, element, common.getSVGProps(common.preparePathShow(env, path)), props.highlight.scaleSpeed, props.highlight.scaleEasing);
+              common.animationStackPush(env, piece, element, common.getSVGProps(env, path), props.highlight.scaleSpeed, props.highlight.scaleEasing);
 
             } else if (env.opt.type == 'funnel') {
               var dx = (piece.rect[2] - piece.rect[0]) * (scale[0] - 1) / 2;
@@ -91,7 +91,7 @@ $.elycharts.highlightmanager = {
                 common.movePath(env, [ path[2]], [+dx, +dy])[0],
                 common.movePath(env, [ path[3]], [-dx, +dy])[0],
                 path[4] ];
-              common.animationStackPush(env, piece, element, common.getSVGProps(common.preparePathShow(env, path)), props.highlight.scaleSpeed, props.highlight.scaleEasing, 0, true);
+              common.animationStackPush(env, piece, element, common.getSVGProps(env, path), props.highlight.scaleSpeed, props.highlight.scaleEasing, 0, true);
 
               // Se c'e' un piece precedente lo usa, altrimenti cerca un topSector per la riduzione
               pelement = false;
@@ -113,7 +113,7 @@ $.elycharts.highlightmanager = {
                   common.movePath(env, [ ppath[2]], [+dx, -dy])[0],
                   common.movePath(env, [ ppath[3]], [-dx, -dy])[0],
                   ppath[4] ];
-                common.animationStackPush(env, ppiece, pelement, common.getSVGProps(common.preparePathShow(env, ppath)), props.highlight.scaleSpeed, props.highlight.scaleEasing, 0, true);
+                common.animationStackPush(env, ppiece, pelement, common.getSVGProps(env, ppath), props.highlight.scaleSpeed, props.highlight.scaleEasing, 0, true);
                 env.highlighted.push({piece : ppiece, cfg : props.highlight});
               }
 
@@ -137,7 +137,7 @@ $.elycharts.highlightmanager = {
                   common.movePath(env, [ ppath[1]], [+dx, +dy])[0],
                   ppath[2], ppath[3],
                   ppath[4] ];
-                common.animationStackPush(env, ppiece, pelement, common.getSVGProps(common.preparePathShow(env, ppath)), props.highlight.scaleSpeed, props.highlight.scaleEasing, 0, true);
+                common.animationStackPush(env, ppiece, pelement, common.getSVGProps(env, ppath), props.highlight.scaleSpeed, props.highlight.scaleEasing, 0, true);
                 env.highlighted.push({piece : ppiece, cfg : props.highlight});
               }
               // SHOULD ALREADY BE DONE BY core: common.animationStackEnd(env);
@@ -156,7 +156,7 @@ $.elycharts.highlightmanager = {
           if (props.highlight.move) {
             var offset = $.isArray(props.highlight.move) ? props.highlight.move : [props.highlight.move, 0];
             path = common.movePath(env, path, offset);
-            common.animationStackPush(env, piece, element, common.getSVGProps(common.preparePathShow(env, path)), props.highlight.moveSpeed, props.highlight.moveEasing);
+            common.animationStackPush(env, piece, element, common.getSVGProps(env, path), props.highlight.moveSpeed, props.highlight.moveEasing);
           }
 
           //env.highlighted.push({element : element, attr : attr});

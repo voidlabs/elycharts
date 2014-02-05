@@ -130,11 +130,11 @@ $.elycharts.animationmanager = {
         startAttr : common._clone(piece.attr)
       };
       if (animationProps.propsTo)
-        piece.attr = common._mergeObjects(piece.attr, animationProps.propsTo);
+        piece.attr = $.extend(true, piece.attr, animationProps.propsTo);
       if (animationProps.propsFrom)
-        piece.animation.startAttr = common._mergeObjects(piece.animation.startAttr, animationProps.propsFrom);
+        piece.animation.startAttr = $.extend(true, piece.animation.startAttr, animationProps.propsFrom);
       if (subSection && animationProps[subSection.toLowerCase() + 'PropsFrom'])
-        piece.animation.startAttr = common._mergeObjects(piece.animation.startAttr, animationProps[subSection.toLowerCase() + 'PropsFrom']);
+        piece.animation.startAttr = $.extend(true, piece.animation.startAttr, animationProps[subSection.toLowerCase() + 'PropsFrom']);
       
       if (typeof piece.animation.startAttr.opacity != 'undefined' && typeof piece.attr.opacity == 'undefined')
         piece.attr.opacity = 1;

@@ -43,8 +43,22 @@ $.elycharts.tooltipmanager = {
   },
   
   _prepareShow : function(env, props, mouseAreaData, tip) {
-    if (env.tooltipFrameElement)
+	    
+    // Il dimensionamento del tooltip e la view del frame SVG, lo fa solo se width ed height sono specificati
+    if (props.width && props.width != 'auto' && props.height && props.height != 'auto') {
+      var delta = props.frameProps && props.frameProps['stroke-width'] ? props.frameProps['stroke-width'] : 0;
+      env.tooltipContainer.width(props.width + delta + 1).height(props.height + delta + 1);
+      if (!env.tooltipFrameElement && props.frameProps) {
+    	var framePath = [ [ 'RECT', delta / 2, delta / 2, props.width, props.height, props.roundedCorners ] ];
+    	env.tooltipFrameElement = common.showPath(env, framePath, env.tooltipFrame).attr(props.frameProps);
+        // env.tooltipFrameElement = env.tooltipFrame.rect(delta / 2, delta / 2, props.width, props.height, props.roundedCorners);
+      }
+    }
+
+    if (env.tooltipFrameElement) {
       env.tooltipFrameElement.attr(props.frameProps);
+    }
+
     if (props.padding)
       env.tooltipContent.css({ padding : props.padding[0] + 'px ' + props.padding[1] + 'px' });
     env.tooltipContent.css(props.contentStyle);
@@ -173,14 +187,6 @@ $.elycharts.tooltipmanager = {
     //if (!env.opt.tooltips || (serie && (!env.opt.tooltips[serie] || !env.opt.tooltips[serie][index])) || (!serie && !env.opt.tooltips[index]))
     //  return this.onMouseExit(env, serie, index, mouseAreaData);
     //var tip = serie ? env.opt.tooltips[serie][index] : env.opt.tooltips[index];
-    
-    // Il dimensionamento del tooltip e la view del frame SVG, lo fa solo se width ed height sono specificati
-    if (props.width && props.width != 'auto' && props.height && props.height != 'auto') {
-      var delta = props.frameProps && props.frameProps['stroke-width'] ? props.frameProps['stroke-width'] : 0;
-      env.tooltipContainer.width(props.width + delta + 1).height(props.height + delta + 1);
-      if (!env.tooltipFrameElement && props.frameProps)
-        env.tooltipFrameElement = env.tooltipFrame.rect(delta / 2, delta / 2, props.width, props.height, props.roundedCorners);
-    }
 
     env.tooltipContainer.css(this._prepareShow(env, props, mouseAreaData, tip)).fadeIn(env.opt.features.tooltip.fadeDelay);
 

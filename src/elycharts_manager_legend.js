@@ -139,7 +139,7 @@ $.elycharts.legendmanager = {
     }
     if (autowidth || autox) {
       borderPath = [ [ 'RECT', props.x, props.y, props.x + props.width, props.y + props.height, props.r ] ];
-      border.attr(common.getSVGProps(common.preparePathShow(env, borderPath)));
+      border.attr(common.getSVGProps(env, borderPath));
       //border.attr({path : common.preparePathShow(env, common.getSVGPath(borderPath))});
       border.show();
     }

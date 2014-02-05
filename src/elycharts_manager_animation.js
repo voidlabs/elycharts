@@ -34,7 +34,6 @@ $.elycharts.animationmanager = {
 
   _stepAnimationInt : function(env, pieces1, pieces2, section, serie, internal) {
     // Se pieces2 == null deve essere nascosto tutto pieces1
-
     var newpieces = [], newpiece;
     var j = 0;
     for (var i = 0; i < pieces1.length; i ++) {
@@ -152,7 +151,7 @@ $.elycharts.animationmanager = {
     
     switch (env.opt.type) {
       case 'line':
-        y = env.opt.height - env.opt.margins[2];
+        y = env.height - env.opt.margins[2];
         switch (piece.subSection) {
           case 'Plot':
             if (!piece.paths) {
@@ -200,9 +199,9 @@ $.elycharts.animationmanager = {
         var x;
         if (piece.section == 'Series' && piece.subSection == 'Plot') {
           if (!props.subType)
-            x = env.opt.direction != 'rtl' ? env.opt.margins[3] : env.opt.width - env.opt.margins[1];
+            x = env.opt.direction != 'rtl' ? env.opt.margins[3] : env.width - env.opt.margins[1];
           else if (props.subType == 1)
-            x = env.opt.direction != 'rtl' ? env.opt.width - env.opt.margins[1] : env.opt.margins[3];
+            x = env.opt.direction != 'rtl' ? env.width - env.opt.margins[1] : env.opt.margins[3];
           for (i = 0; i < piece.paths.length; i++)
             if (piece.paths[i].path) {
               if (!props.subType || props.subType == 1)

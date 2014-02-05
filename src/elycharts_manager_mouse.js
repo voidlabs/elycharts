@@ -37,12 +37,12 @@ $.elycharts.mousemanager = {
     this.clear(env);
 
     env.mouseLayer = $('<div></div>').css({position : 'absolute', 'z-index' : 20, opacity : 1}).prependTo(env.container);
-    env.mousePaper = common._RaphaelInstance(env.mouseLayer.get(0), env.opt.width, env.opt.height);
+    env.mousePaper = common._RaphaelInstance(env.mouseLayer.get(0), env.width, env.height);
     var paper = env.mousePaper;
 
     if (env.opt.features.debug.active && typeof DP_Debug != 'undefined') {
-      env.paper.text(env.opt.width, env.opt.height - 5, 'DEBUG').attr({ 'text-anchor' : 'end', stroke: 'red', opacity: .1 });
-      paper.text(env.opt.width, env.opt.height - 5, 'DEBUG').attr({ 'text-anchor' : 'end', stroke: 'red', opacity: .1 }).click(function() {
+      env.paper.text(env.width, env.height - 5, 'DEBUG').attr({ 'text-anchor' : 'end', stroke: 'red', opacity: .1 });
+      paper.text(env.width, env.height - 5, 'DEBUG').attr({ 'text-anchor' : 'end', stroke: 'red', opacity: .1 }).click(function() {
         DP_Debug.dump(env.opt, '', false, 4);
       });
     }
@@ -105,10 +105,10 @@ $.elycharts.mousemanager = {
         indexCenter = env.indexCenter;
       var start, delta;
       if (indexCenter == 'bar') {
-        delta = (env.opt.width - env.opt.margins[3] - env.opt.margins[1]) / (env.opt.labels.length > 0 ? env.opt.labels.length : 1);
+        delta = (env.width - env.opt.margins[3] - env.opt.margins[1]) / (env.opt.labels.length > 0 ? env.opt.labels.length : 1);
         start = env.opt.margins[3];
       } else {
-        delta = (env.opt.width - env.opt.margins[3] - env.opt.margins[1]) / (env.opt.labels.length > 1 ? env.opt.labels.length - 1 : 1);
+        delta = (env.width - env.opt.margins[3] - env.opt.margins[1]) / (env.opt.labels.length > 1 ? env.opt.labels.length - 1 : 1);
         start = env.opt.margins[3] - delta / 2;
       }
 
@@ -116,7 +116,7 @@ $.elycharts.mousemanager = {
       	// idx can be a string and concatenation results in bad sums.
       	var index = parseInt(idx);
         env.mouseAreas.push({
-          path : [ [ 'RECT', start + index * delta, env.opt.height - env.opt.margins[2], start + (index + 1) * delta, env.opt.margins[0] ] ],
+          path : [ [ 'RECT', start + index * delta, env.height - env.opt.margins[2], start + (index + 1) * delta, env.opt.margins[0] ] ],
           piece : false,
           pieces : pieces,
           index : parseInt(index),

@@ -203,8 +203,8 @@ $.elycharts.line = {
     this.grid(env, pieces);
     
     // DEP: *
-    var deltaX = (opt.width - opt.margins[3] - opt.margins[1]) / (labels.length > 1 ? labels.length - 1 : 1);
-    var deltaBarX = (opt.width - opt.margins[3] - opt.margins[1]) / (labels.length > 0 ? labels.length : 1);
+    var deltaX = (env.width - opt.margins[3] - opt.margins[1]) / (labels.length > 1 ? labels.length - 1 : 1);
+    var deltaBarX = (env.width - opt.margins[3] - opt.margins[1]) / (labels.length > 0 ? labels.length : 1);
 
     for (serie in values) {
       props = common.areaProps(env, 'Series', serie);
@@ -219,7 +219,7 @@ $.elycharts.line = {
         env.indexCenter = 'bar';
 
       if (values[serie] && props.visible) {
-        var deltaY = (opt.height - opt.margins[2] - opt.margins[0]) / (plot.max - plot.min);
+        var deltaY = (env.height - opt.margins[2] - opt.margins[0]) / (plot.max - plot.min);
         
         if (props.type == 'line') {
           // LINE CHART
@@ -235,9 +235,9 @@ $.elycharts.line = {
 
               var d = plot.to[i] > plot.max ? plot.max : (plot.to[i] < plot.min ? plot.min : plot.to[i]);
               var x = Math.round((props.lineCenter ? deltaBarX / 2 : 0) + opt.margins[3] + i * (props.lineCenter ? deltaBarX : deltaX));
-              var y = Math.round(opt.height - opt.margins[2] - deltaY * (d - plot.min));
+              var y = Math.round(env.height - opt.margins[2] - deltaY * (d - plot.min));
               var dd = plot.from[i] > plot.max ? plot.max : (plot.from[i] < plot.min ? plot.min : plot.from[i]);
-              var yy = Math.round(opt.height - opt.margins[2] - deltaY * (dd - plot.min)) + (Raphael.VML ? 1 : 0);
+              var yy = Math.round(env.height - opt.margins[2] - deltaY * (dd - plot.min)) + (Raphael.VML ? 1 : 0);
 
               linePath[1].push([x, y]);
 
@@ -278,8 +278,8 @@ $.elycharts.line = {
                 var boff = opt.barMargins / 2 + plot.barno * (bwid * (100 - opt.barOverlapPerc) / 100);
 
                 var x1 = Math.floor(opt.margins[3] + i * deltaBarX + boff + bpad);
-                var y1 = Math.round(opt.height - opt.margins[2] - deltaY * (plot.to[i] - plot.min));
-                var y2 = Math.round(opt.height - opt.margins[2] - deltaY * (plot.from[i] - plot.min));
+                var y1 = Math.round(env.height - opt.margins[2] - deltaY * (plot.to[i] - plot.min));
+                var y2 = Math.round(env.height - opt.margins[2] - deltaY * (plot.from[i] - plot.min));
 
                 pieceBar.push({path : [ [ 'RECT', x1, y1, x1 + bwid - bpad * 2, y2 ] ], attr : indexProps.plotProps });
               } else
@@ -314,8 +314,8 @@ $.elycharts.line = {
       var paper = env.paper;
       var axis = env.axis;
       var labels = env.opt.labels;
-      var deltaX = (opt.width - opt.margins[3] - opt.margins[1]) / (labels.length > 1 ? labels.length - 1 : 1);
-      var deltaBarX = (opt.width - opt.margins[3] - opt.margins[1]) / (labels.length > 0 ? labels.length : 1);
+      var deltaX = (env.width - opt.margins[3] - opt.margins[1]) / (labels.length > 1 ? labels.length - 1 : 1);
+      var deltaBarX = (env.width - opt.margins[3] - opt.margins[1]) / (labels.length > 0 ? labels.length : 1);
       var i, j, x, y, lw, labx, laby, labe, val, txt;
       // Label X axis
       var paths = [];
@@ -352,7 +352,7 @@ $.elycharts.line = {
               if (labelsPos == 'middle') labx += (labelsCenter ? deltaBarX : deltaX) / 2;
               if (labelsPos == 'end') labx += (labelsCenter ? deltaBarX : deltaX);
 
-              laby = opt.height - opt.margins[2] + axis.x.props.labelsDistance;
+              laby = env.height - opt.margins[2] + axis.x.props.labelsDistance;
               labe = paper.text(labx, laby, txt).attr(axis.x.props.labelsProps).toBack();
 
               labe.attr({"text-anchor" : labelsAnchor});
@@ -428,7 +428,7 @@ $.elycharts.line = {
               // compute used "rect" so to be able to check if there is overlapping with previous ones.
               var rect = rotated({p1: p1, p2: p2, alpha: 0}, o1, alpha);
       
-              //console.log('bbox ',p1, p2, rect, props.nx, val, rect.p1, rect.p2, rect.alpha, boundingbox, opt.width);
+              //console.log('bbox ',p1, p2, rect, props.nx, val, rect.p1, rect.p2, rect.alpha, boundingbox, env.width);
               // se collide con l'ultimo mostrato non lo mostro.
               var dist = axis.x.props.labelsMarginRight ? axis.x.props.labelsMarginRight / 2 : 0;
               if (axis.x.props.labelsHideCovered && lastShownLabelRect && collide(rect, lastShownLabelRect, dist)) {
@@ -437,7 +437,7 @@ $.elycharts.line = {
               } else {
                 boundingbox = bbox(rect);
                 // Manage label overflow
-                if (props.nx == 'auto' && (boundingbox.x < 0 || boundingbox.x+boundingbox.width > opt.width)) {
+                if (props.nx == 'auto' && (boundingbox.x < 0 || boundingbox.x+boundingbox.width > env.width)) {
                   labe.hide();
                   labels[i] = false;
                 } else {
@@ -462,8 +462,8 @@ $.elycharts.line = {
           
       // Title X Axis
       if (axis.x && axis.x.props.title) {
-        x = opt.margins[3] + Math.floor((opt.width - opt.margins[1] - opt.margins[3]) / 2);
-        y = opt.height - opt.margins[2] + axis.x.props.titleDistance * (Raphael.VML ? axis.x.props.titleDistanceIE : 1);
+        x = opt.margins[3] + Math.floor((env.width - opt.margins[1] - opt.margins[3]) / 2);
+        y = env.height - opt.margins[2] + axis.x.props.titleDistance * (Raphael.VML ? axis.x.props.titleDistanceIE : 1);
         //paper.text(x, y, axis.x.props.title).attr(axis.x.props.titleProps);
         pieces.push({ section : 'Axis', serie : 'x', subSection : 'Title', path : [ [ 'TEXT', axis.x.props.title, x, y ] ], attr : axis.x.props.titleProps });
       } else
@@ -475,9 +475,9 @@ $.elycharts.line = {
         if (axis[j] && axis[j].props.labels && props.ny) {
           paths = [];
           for (i = axis[j].props.labelsSkip ? axis[j].props.labelsSkip : 0; i <= props.ny; i++) {
-            var deltaY = (opt.height - opt.margins[2] - opt.margins[0]) / props.ny;
+            var deltaY = (env.height - opt.margins[2] - opt.margins[0]) / props.ny;
             if (j == 'r') {
-              labx = opt.width - opt.margins[1] + axis[j].props.labelsDistance;
+              labx = env.width - opt.margins[1] + axis[j].props.labelsDistance;
               if (!axis[j].props.labelsProps["text-anchor"])
                 axis[j].props.labelsProps["text-anchor"] = "start";
             } else {
@@ -499,7 +499,7 @@ $.elycharts.line = {
             if (axis[j].props.labelsCompactUnits)
               val = common.compactUnits(val, axis[j].props.labelsCompactUnits);
             txt = (axis[j].props.prefix ? axis[j].props.prefix : "") + val + (axis[j].props.suffix ? axis[j].props.suffix : "");
-            laby = opt.height - opt.margins[2] - i * deltaY;
+            laby = env.height - opt.margins[2] - i * deltaY;
             //var labe = paper.text(labx, laby + (axis[j].props.labelsMargin ? axis[j].props.labelsMargin : 0), txt).attr(axis[j].props.labelsProps).toBack();
             paths.push( { path : [ [ 'TEXT', txt, labx, laby + (axis[j].props.labelsMargin ? axis[j].props.labelsMargin : 0) ] ], attr : axis[j].props.labelsProps });
           }
@@ -509,13 +509,13 @@ $.elycharts.line = {
 
         if (axis[j] && axis[j].props.title) {
           if (j == 'r')
-            x = opt.width - opt.margins[1] + axis[j].props.titleDistance * (Raphael.VML ? axis[j].props.titleDistanceIE : 1);
+            x = env.width - opt.margins[1] + axis[j].props.titleDistance * (Raphael.VML ? axis[j].props.titleDistanceIE : 1);
           else
             x = opt.margins[3] - axis[j].props.titleDistance * (Raphael.VML ? axis[j].props.titleDistanceIE : 1);
-          //paper.text(x, opt.margins[0] + Math.floor((opt.height - opt.margins[0] - opt.margins[2]) / 2), axis[j].props.title).attr(axis[j].props.titleProps).attr({rotation : j == 'l' ? 270 : 90});
+          //paper.text(x, opt.margins[0] + Math.floor((env.height - opt.margins[0] - opt.margins[2]) / 2), axis[j].props.title).attr(axis[j].props.titleProps).attr({rotation : j == 'l' ? 270 : 90});
           var attr = common._clone(axis[j].props.titleProps);
           var rotation = j == 'l' ? 270 : 90;
-          var y = opt.margins[0] + Math.floor((opt.height - opt.margins[0] - opt.margins[2]) / 2);
+          var y = opt.margins[0] + Math.floor((env.height - opt.margins[0] - opt.margins[2]) / 2);
           // Raphael 2 does not support .rotation
           if (Raphael.animation) {
             var labe = paper.text(x, y, axis[j].props.title).attr(attr).transform(Raphael.format('r{0}', rotation)).toBack();
@@ -533,8 +533,8 @@ $.elycharts.line = {
         var path = [], bandsH = [], bandsV = [],
           nx = props.nx == 'auto' ? (labelsCenter ? labels.length : labels.length - 1) : props.nx,
           ny = props.ny,
-          rowHeight = (opt.height - opt.margins[2] - opt.margins[0]) / (ny ? ny : 1),
-          columnWidth = (opt.width - opt.margins[1] - opt.margins[3]) / (nx ? nx : 1),
+          rowHeight = (env.height - opt.margins[2] - opt.margins[0]) / (ny ? ny : 1),
+          columnWidth = (env.width - opt.margins[1] - opt.margins[3]) / (nx ? nx : 1),
           forceBorderX1 = typeof props.forceBorder == 'object' ? props.forceBorder[3] : props.forceBorder,
           forceBorderX2 = typeof props.forceBorder == 'object' ? props.forceBorder[1] : props.forceBorder,
           forceBorderY1 = typeof props.forceBorder == 'object' ? props.forceBorder[0] : props.forceBorder,
@@ -550,13 +550,13 @@ $.elycharts.line = {
               drawH && i > 0 && i < ny // Show  other lines if draw = true
             ) {
               path.push(["M", opt.margins[3] - props.extra[3], opt.margins[0] + Math.round(i * rowHeight) ]);
-              path.push(["L", opt.width - opt.margins[1] + props.extra[1], opt.margins[0] + Math.round(i * rowHeight)]);
+              path.push(["L", env.width - opt.margins[1] + props.extra[1], opt.margins[0] + Math.round(i * rowHeight)]);
             }
             if (i < ny) {
               if (i % 2 == 0 && props.evenHProps || i % 2 == 1 && props.oddHProps)
                 bandsH.push({path : [ [ 'RECT',
                       opt.margins[3] - props.extra[3], opt.margins[0] + Math.round(i * rowHeight), // x1, y1
-                      opt.width - opt.margins[1] + props.extra[1], opt.margins[0] + Math.round((i + 1) * rowHeight) // x2, y2
+                      env.width - opt.margins[1] + props.extra[1], opt.margins[0] + Math.round((i + 1) * rowHeight) // x2, y2
                   ] ], attr : i % 2 == 0 ? props.evenHProps : props.oddHProps });
               else
                 bandsH.push({ path : false, attr: false})
@@ -574,13 +574,13 @@ $.elycharts.line = {
             // Show all lines if props.nx is a number, or if label != false, AND draw must be true
           ) {
             path.push(["M", opt.margins[3] + Math.round(i * columnWidth), opt.margins[0] - props.extra[0] ]); //(t ? props.extra[0] : 0)]);
-            path.push(["L", opt.margins[3] + Math.round(i * columnWidth), opt.height - opt.margins[2] + props.extra[2] ]); //(t ? props.extra[2] : 0)]);
+            path.push(["L", opt.margins[3] + Math.round(i * columnWidth), env.height - opt.margins[2] + props.extra[2] ]); //(t ? props.extra[2] : 0)]);
           }
           if (i < nx) {
             if (i % 2 == 0 && props.evenVProps || i % 2 == 1 && props.oddVProps)
               bandsV.push({path : [ [ 'RECT',
                     opt.margins[3] + Math.round(i * columnWidth), opt.margins[0] - props.extra[0], // x1, y1
-                    opt.margins[3] + Math.round((i + 1) * columnWidth), opt.height - opt.margins[2] + props.extra[2], // x2, y2
+                    opt.margins[3] + Math.round((i + 1) * columnWidth), env.height - opt.margins[2] + props.extra[2], // x2, y2
                 ] ], attr : i % 2 == 0 ? props.evenVProps : props.oddVProps });
             else
               bandsV.push({ path : false, attr: false})
@@ -597,8 +597,8 @@ $.elycharts.line = {
         if (props.ticks.active && (typeof props.ticks.active != 'object' || props.ticks.active[0])) {
           for (i = 0; i < nx + 1; i++) {
             if (props.nx != 'auto' || typeof labels[i] != 'boolean' || labels[i]) {
-              tpath.push(["M", opt.margins[3] + Math.round(i * columnWidth), opt.height - opt.margins[2] - props.ticks.size[1] ]);
-              tpath.push(["L", opt.margins[3] + Math.round(i * columnWidth), opt.height - opt.margins[2] + props.ticks.size[0] ]);
+              tpath.push(["M", opt.margins[3] + Math.round(i * columnWidth), env.height - opt.margins[2] - props.ticks.size[1] ]);
+              tpath.push(["L", opt.margins[3] + Math.round(i * columnWidth), env.height - opt.margins[2] + props.ticks.size[0] ]);
             }
           }
         }
@@ -611,8 +611,8 @@ $.elycharts.line = {
         // Ticks asse R
         if (props.ticks.active && (typeof props.ticks.active != 'object' || props.ticks.active[2]))
           for (i = 0; i < ny + 1; i++) {
-            tpath.push(["M", opt.width - opt.margins[1] - props.ticks.size[1], opt.margins[0] + Math.round(i * rowHeight) ]);
-            tpath.push(["L", opt.width - opt.margins[1] + props.ticks.size[0], opt.margins[0] + Math.round(i * rowHeight)]);
+            tpath.push(["M", env.width - opt.margins[1] - props.ticks.size[1], opt.margins[0] + Math.round(i * rowHeight) ]);
+            tpath.push(["L", env.width - opt.margins[1] + props.ticks.size[0], opt.margins[0] + Math.round(i * rowHeight)]);
           }
         
         pieces.push({ section : 'Ticks', path : tpath.length ? tpath : false, attr : tpath.length ? props.ticks.props : false });

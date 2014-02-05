@@ -44,6 +44,10 @@ $.elycharts.templates = {
     legend : [],
     */
     
+    // Autoresize uses jQuery resize event to automatically resize the chart to the container
+    // autoresize makes sense only when width or height is not defined.
+	// autoresize: false,
+	  
     // Per impostare una dimensione diversa da quella del container settare width e height
     //width : x,
     //height : y

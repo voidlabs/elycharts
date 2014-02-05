@@ -75,7 +75,6 @@ $.elycharts.barline = {
         });
     }
       
-    common.show(env, pieces);
     return pieces;
   }
 };

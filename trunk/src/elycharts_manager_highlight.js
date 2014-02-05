@@ -85,7 +85,7 @@ $.elycharts.highlightmanager = {
               var dy = (piece.rect[3] - piece.rect[1]) * (scale[1] - 1) / 2;
 
               // Specifico di un settore del funnel
-              common.animationStackStart(env);
+              // SHOULD ALREADY BE DONE BY core common.animationStackStart(env);
               path = [ common.movePath(env, [ path[0]], [-dx, -dy])[0],
                 common.movePath(env, [ path[1]], [+dx, -dy])[0],
                 common.movePath(env, [ path[2]], [+dx, +dy])[0],
@@ -140,8 +140,7 @@ $.elycharts.highlightmanager = {
                 common.animationStackPush(env, ppiece, pelement, common.getSVGProps(common.preparePathShow(env, ppath)), props.highlight.scaleSpeed, props.highlight.scaleEasing, 0, true);
                 env.highlighted.push({piece : ppiece, cfg : props.highlight});
               }
-
-              common.animationStackEnd(env);
+              // SHOULD ALREADY BE DONE BY core: common.animationStackEnd(env);
             }
             /* Con scale non va bene
             if (!attr.scale)

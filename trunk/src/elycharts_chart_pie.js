@@ -121,7 +121,6 @@ $.elycharts.pie = {
       pieces.push({ section : 'Series', serie : serie, subSection : 'Plot', paths : paths , mousearea : 'paths'});
     }
     
-    common.show(env, pieces);
     return pieces;
   }
 }

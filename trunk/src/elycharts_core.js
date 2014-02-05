@@ -298,28 +298,6 @@ $.elycharts.common = {
     return temp;
   },
   
-  _mergeObjects : function(o1, o2) {
-    return $.extend(true, o1, o2);
-    /*
-    if (typeof o1 == 'undefined')
-      return o2;
-    if (typeof o2 == 'undefined')
-      return o1;
-    
-    for (var idx in o2)
-      if (typeof o1[idx] == 'undefined')
-        o1[idx] = this._clone(o2[idx]);
-      else if (typeof o2[idx] == 'object') {
-        if (typeof o1[idx] == 'object')
-          o1[idx] = this._mergeObjects(o1[idx], o2[idx]);
-        else
-          o1[idx] = this._mergeObjects({}, o2[idx]);
-      }
-      else 
-        o1[idx] = this._clone(o2[idx]);
-    return o1;*/
-  },
-  
   compactUnits : function(val, units) {
     for (var i = units.length - 1; i >= 0; i--) {
       var v = val / Math.pow(1000, i + 1);
@@ -446,10 +424,10 @@ $.elycharts.common = {
         else {
           props = this._clone(env.opt['default' + section]);
           if (sectionProps && sectionProps[serie])
-            props = this._mergeObjects(props, sectionProps[serie]);
+            props = $.extend(true, props, sectionProps[serie]);
 
           if ((typeof index != 'undefined') && index >= 0 && props['values'] && props['values'][index])
-            props = this._mergeObjects(props, props['values'][index]);
+            props = $.extend(true, props, props['values'][index]);
 
           if (env.cache) {
             if (!env.cache.areaPropsCache) env.cache.areaPropsCache = {}; 
@@ -464,29 +442,38 @@ $.elycharts.common = {
       
       if (typeof serie == 'undefined' || !serie) {
         if (sectionProps && sectionProps[subsectionKey])
-          props = this._mergeObjects(props, sectionProps[subsectionKey]);
+          props = $.extend(true, props, sectionProps[subsectionKey]);
 
       } else {
         if (env.opt['default' + section] && env.opt['default' + section][subsectionKey])
-          props = this._mergeObjects(props, env.opt['default' + section][subsectionKey]);
+          props = $.extend(true, props, env.opt['default' + section][subsectionKey]);
 
         if (sectionProps && sectionProps[serie] && sectionProps[serie][subsectionKey])
-          props = this._mergeObjects(props, sectionProps[serie][subsectionKey]);
+          props = $.extend(true, props, sectionProps[serie][subsectionKey]);
         
         if ((typeof index != 'undefined') && index > 0 && props['values'] && props['values'][index])
-          props = this._mergeObjects(props, props['values'][index]);
+          props = $.extend(true, props, props['values'][index]);
       }
     }
     
     return props;
   },
   
-  absrectpath : function(x1, y1, x2, y2, r) {
-    // TODO Supportare r
-    return [['M', x1, y1], ['L', x1, y2], ['L', x2, y2], ['L', x2, y1], ['z']];
+  _absrectpath : function(x1, y1, x2, y2, r) {
+    if (r) {
+      // we can use 'a' or 'Q' for the same result.
+      var res = [
+        ['M',x1,y1+r], ['a', r, r, 0, 0, 1, r, -r], //['Q',x1,y1, x1+r,y1],
+        ['L',x2-r,y1], ['a', r, r, 0, 0, 1, r, r], //['Q',x2,y1, x2,y1+r],
+        ['L',x2,y2-r], ['a', r, r, 0, 0, 1, -r, r], // ['Q',x2,y2, x2-r,y2],
+        ['L',x1+r,y2], ['a', r, r, 0, 0, 1, -r, -r], // ['Q',x1,y2, x1,y2-r],
+        ['z']
+      ];
+      return res;
+    } else return [['M', x1, y1], ['L', x1, y2], ['L', x2, y2], ['L', x2, y1], ['z']];
   },
   
-  linepathAnchors : function(p1x, p1y, p2x, p2y, p3x, p3y, rounded) {
+  _linepathAnchors : function(p1x, p1y, p2x, p2y, p3x, p3y, rounded) {
     var method = 1;
     if (rounded && rounded.length) {
       method = rounded[1];
@@ -526,7 +513,7 @@ $.elycharts.common = {
     };
   },
   
-  linepathRevert : function(path) {
+  _linepathRevert : function(path) {
     var rev = [], anc = false;
     for (var i = path.length - 1; i >= 0; i--) {
       switch (path[i][0]) {
@@ -549,13 +536,13 @@ $.elycharts.common = {
     return rev;
   },
   
-  linepath : function ( points, rounded ) {
+  _linepath : function ( points, rounded ) {
     var path = [];
     if (rounded) {
       var anc = false;
       for (var j = 0, jj = points.length - 1; j < jj ; j++) {
         if (j) {
-          var a = this.linepathAnchors(points[j - 1][0], points[j - 1][1], points[j][0], points[j][1], points[j + 1][0], points[j + 1][1], rounded);
+          var a = this._linepathAnchors(points[j - 1][0], points[j - 1][1], points[j][0], points[j][1], points[j + 1][0], points[j + 1][1], rounded);
           path.push([ "C", anc[0], anc[1], a.x1, a.y1, points[j][0], points[j][1] ]);
           anc = [ a.x2, a.y2 ];
         } else {
@@ -575,8 +562,8 @@ $.elycharts.common = {
     return path;
   },
 
-  lineareapath : function (points1, points2, rounded) {
-    var path = this.linepath(points1, rounded), path2 = this.linepathRevert(this.linepath(points2, rounded));
+  _lineareapath : function (points1, points2, rounded) {
+    var path = this._linepath(points1, rounded), path2 = this._linepathRevert(this._linepath(points2, rounded));
     
     for (var i = 0; i < path2.length; i++)
       path.push( !i ? [ "L", path2[0][1], path2[0][2] ] : path2[i] );
@@ -670,7 +657,7 @@ $.elycharts.common = {
   movePath : function(env, path, offset, marginlimit, simple) {
     var p = [], i;
     if (path.length == 1 && path[0][0] == 'RECT')
-      return [ [path[0][0], this._movePathX(env, path[0][1], offset[0], marginlimit), this._movePathY(env, path[0][2], offset[1], marginlimit), this._movePathX(env, path[0][3], offset[0], marginlimit), this._movePathY(env, path[0][4], offset[1], marginlimit)] ];
+      return [ [path[0][0], this._movePathX(env, path[0][1], offset[0], marginlimit), this._movePathY(env, path[0][2], offset[1], marginlimit), this._movePathX(env, path[0][3], offset[0], marginlimit), this._movePathY(env, path[0][4], offset[1], marginlimit), path[0][5]] ];
     if (path.length == 1 && path[0][0] == 'SLICE') {
       if (!simple) {
         var popangle = path[0][5] + (path[0][6] - path[0][5]) / 2;
@@ -705,6 +692,9 @@ $.elycharts.common = {
     for (var j = 0; j < path.length; j++) {
       var o = path[j];
       switch (o[0]) {
+        // TODO the translation for lowercase actions are all wrong!
+        // relative movements do not need to be adjusted for moving (or at most, only the first one have to).
+        // TODO relative movements this way cannot be forced to stay in marginlimit!
         case 'M': case 'm': case 'L': case 'l': case 'T': case 't':
           // (x y)+
           newpath.push([o[0], this._movePathX(env, o[1], offset[0], marginlimit), this._movePathY(env, o[2], offset[1], marginlimit)]);
@@ -714,12 +704,22 @@ $.elycharts.common = {
           newpath.push([o[0], o[1], o[2], o[3], o[4], o[5], this._movePathX(env, o[6], offset[0], marginlimit), this._movePathY(env, o[7], offset[1], marginlimit)]);
           break;
         case 'C': case 'c':
+          // Fixed for uppercase C in 2.1.5
           // (x1 y1 x2 y2 x y)+
-          newpath.push([o[0], o[1], o[2], o[3], o[4], this._movePathX(env, o[5], offset[0], marginlimit), this._movePathY(env, o[6], offset[1], marginlimit)]);
+          newpath.push([o[0], 
+            this._movePathX(env, o[1], offset[0], marginlimit), this._movePathY(env, o[2], offset[1], marginlimit),
+            this._movePathX(env, o[3], offset[0], marginlimit), this._movePathY(env, o[4], offset[1], marginlimit),
+            this._movePathX(env, o[5], offset[0], marginlimit), this._movePathY(env, o[6], offset[1], marginlimit)
+          ]);
           break;
         case 'S': case 's': case 'Q': case 'q':
+          // Fixed for uppercase Q in 2.1.5
           // (x1 y1 x y)+
-          newpath.push([o[0], o[1], o[2], this._movePathX(env, o[3], offset[0], marginlimit), this._movePathY(env, o[4], offset[1], marginlimit)]);
+          // newpath.push([o[0], o[1], o[2], this._movePathX(env, o[3], offset[0], marginlimit), this._movePathY(env, o[4], offset[1], marginlimit)]);
+          newpath.push([o[0], 
+            this._movePathX(env, o[1], offset[0], marginlimit), this._movePathY(env, o[2], offset[1], marginlimit), 
+            this._movePathX(env, o[3], offset[0], marginlimit), this._movePathY(env, o[4], offset[1], marginlimit)
+          ]);
           break;
         case 'z': case 'Z':
           newpath.push([o[0]]);
@@ -747,19 +747,20 @@ $.elycharts.common = {
   /**
    * Ritorna le proprieta SVG da impostare per visualizzare il path non SVG passato (se applicabile, per CIRCLE e TEXT non lo e')
    */
-  getSVGProps : function(path, prevprops) {
+  getSVGProps : function(env, origPath, prevprops) {
+    var path = this._preparePathShow(env, origPath);
     var props = prevprops ? prevprops : {};
     var type = 'path', value;
 
     if (path.length == 1 && path[0][0] == 'RECT')
-      value = common.absrectpath(path[0][1], path[0][2], path[0][3], path[0][4], path[0][5]);
+      value = common._absrectpath(path[0][1], path[0][2], path[0][3], path[0][4], path[0][5]);
     else if (path.length == 1 && path[0][0] == 'SLICE') {
       type = 'slice';
       value = [ path[0][1], path[0][2], path[0][3], path[0][4], path[0][5], path[0][6] ];
     } else if (path.length == 1 && path[0][0] == 'LINE')
-      value = common.linepath( path[0][1], path[0][2] );
+      value = common._linepath( path[0][1], path[0][2] );
     else if (path.length == 1 && path[0][0] == 'LINEAREA')
-      value = common.lineareapath( path[0][1], path[0][2], path[0][3] );
+      value = common._lineareapath( path[0][1], path[0][2], path[0][3] );
     else if (path.length == 1 && (path[0][0] == 'CIRCLE' || path[0][0] == 'TEXT' || path[0][0] == 'DOMELEMENT' || path[0][0] == 'RELEMENT'))
       return prevprops ? prevprops : false;
     else
@@ -777,15 +778,19 @@ $.elycharts.common = {
    * Gestisce la feature pixelWorkAround
    */
   showPath : function(env, path, paper) {
-    path = this.preparePathShow(env, path);
     
     if (!paper)
       paper = env.paper;
-    if (path.length == 1 && path[0][0] == 'CIRCLE')
+    if (path.length == 1 && path[0][0] == 'CIRCLE') {
+      path = this._preparePathShow(env, path);
       return paper.circle(path[0][1], path[0][2], path[0][3]);
-    if (path.length == 1 && path[0][0] == 'TEXT')
+    }
+    if (path.length == 1 && path[0][0] == 'TEXT') {
+      path = this._preparePathShow(env, path);
       return paper.text(path[0][2], path[0][3], path[0][1]);
-    var props = this.getSVGProps(path);
+    }
+
+    var props = this.getSVGProps(env, path);
 
     // Props must be with some data in it
     var hasdata = false;
@@ -800,7 +805,7 @@ $.elycharts.common = {
    * Applica al path le modifiche per poterlo visualizzare
    * Per ora applica solo pixelWorkAround
    */
-  preparePathShow : function(env, path) {
+  _preparePathShow : function(env, path) {
     return env.opt.features.pixelWorkAround.active ? this.movePath(env, this._clone(path), [.5, .5], false, true) : path;
   },
   
@@ -818,7 +823,7 @@ $.elycharts.common = {
       if (piece.path)
         switch (piece.path[0][0]) {
           case 'CIRCLE':
-            var ppath = this.preparePathShow(env, piece.path);
+            var ppath = this._preparePathShow(env, piece.path);
             piece.fullattr.cx = ppath[0][1];
             piece.fullattr.cy = ppath[0][2];
             piece.fullattr.r = ppath[0][3];
@@ -826,7 +831,7 @@ $.elycharts.common = {
           case 'TEXT': case 'DOMELEMENT': case 'RELEMENT':
             break;
           default:
-            piece.fullattr = this.getSVGProps(this.preparePathShow(env, piece.path), piece.fullattr);
+            piece.fullattr = this.getSVGProps(env, piece.path, piece.fullattr);
         }
       if (typeof piece.fullattr.opacity == 'undefined')
         piece.fullattr.opacity = 1;

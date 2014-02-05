@@ -84,8 +84,10 @@ $.fn.chart = function($options) {
   }
   
   
-  $env.pieces = $.elycharts[$env.opt.type].draw($env);
-  
+  var pieces = $.elycharts[$env.opt.type].draw($env);
+  common._show($env, pieces);
+  $env.pieces = pieces;
+
   return this;
 }
 
@@ -833,12 +835,12 @@ $.elycharts.common = {
   },
 
 
-  show : function(env, origPieces) {
+  _show : function(env, origPieces) {
     if ($.elycharts.featuresmanager) $.elycharts.featuresmanager.beforeShow(env, origPieces);
     
-    pieces = this.getSortedPathData(origPieces);
+    pieces = this._getSortedPathData(origPieces);
 
-    common.animationStackStart(env);
+    this._animationStackStart(env);
 
     var previousElement = false;
     for (var i = 0; i < pieces.length; i++) {
@@ -922,7 +924,7 @@ $.elycharts.common = {
       }
     }
 
-    common.animationStackEnd(env);
+    this._animationStackEnd(env);
     
     if ($.elycharts.featuresmanager) $.elycharts.featuresmanager.afterShow(env, origPieces);
   },
@@ -930,7 +932,7 @@ $.elycharts.common = {
   /**
    * Given an array of pieces, return an array of single pathdata contained in pieces, sorted by zindex
    */
-  getSortedPathData : function(pieces) {
+  _getSortedPathData : function(pieces) {
     res = [];
 
     for (var i = 0; i < pieces.length; i++) {
@@ -954,7 +956,7 @@ $.elycharts.common = {
     });
   },
 
-  animationStackStart : function(env) {
+  _animationStackStart : function(env) {
     if (!env.animationStackDepth || env.animationStackDepth == 0) {
       env.animationStackDepth = 0;
       env.animationStack = {};
@@ -962,7 +964,7 @@ $.elycharts.common = {
     env.animationStackDepth ++;
   },
 
-  animationStackEnd : function(env) {
+  _animationStackEnd : function(env) {
     env.animationStackDepth --;
     if (env.animationStackDepth == 0) {
       for (var delay in env.animationStack) {

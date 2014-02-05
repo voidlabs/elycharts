@@ -38,7 +38,6 @@ $.elycharts.funnel = {
       var pieces = this.pieces(env, serie, 0, 1, 1, values);
     }
       
-    common.show(env, pieces);
     return pieces;
   },
   

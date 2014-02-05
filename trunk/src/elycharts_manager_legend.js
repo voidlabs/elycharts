@@ -30,7 +30,7 @@ $.elycharts.legendmanager = {
     }
     if (props.width == 'auto') {
       var autowidth = 1;
-      props.width = env.opt.width;
+      props.width = env.width;
     }
     
     var borderPath = [ [ 'RECT', props.x, props.y, props.x + props.width, props.y + props.height, props.r ] ];
@@ -129,7 +129,7 @@ $.elycharts.legendmanager = {
     if (autowidth)
       props.width = wauto + props.margins[3] + props.margins[1] - 1;
     if (autox) {
-      props.x = Math.floor((env.opt.width - props.width) / 2);
+      props.x = Math.floor((env.width - props.width) / 2);
       for (i in items) {
         if (items[i].attrs.x)
           items[i].attr('x', items[i].attrs.x + props.x);

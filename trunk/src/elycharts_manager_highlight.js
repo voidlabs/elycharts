@@ -185,21 +185,21 @@ $.elycharts.highlightmanager = {
       if (t == 'auto')
         t = (env.indexCenter == 'bar' ? 'bar' : 'line');
 
-      var delta1 = (env.opt.width - env.opt.margins[3] - env.opt.margins[1]) / (env.opt.labels.length > 0 ? env.opt.labels.length : 1);
-      var delta2 = (env.opt.width - env.opt.margins[3] - env.opt.margins[1]) / (env.opt.labels.length > 1 ? env.opt.labels.length - 1 : 1);
+      var delta1 = (env.width - env.opt.margins[3] - env.opt.margins[1]) / (env.opt.labels.length > 0 ? env.opt.labels.length : 1);
+      var delta2 = (env.width - env.opt.margins[3] - env.opt.margins[1]) / (env.opt.labels.length > 1 ? env.opt.labels.length - 1 : 1);
       var lineCenter = true;
 
       switch (t) {
         case 'bar':
           path = [ ['RECT', env.opt.margins[3] + index * delta1, env.opt.margins[0] ,
-            env.opt.margins[3] + (index + 1) * delta1, env.opt.height - env.opt.margins[2] ] ];
+            env.opt.margins[3] + (index + 1) * delta1, env.height - env.opt.margins[2] ] ];
           break;
 
         case 'line':
           lineCenter = false;
         case 'barline':
           var x = Math.round((lineCenter ? delta1 / 2 : 0) + env.opt.margins[3] + index * (lineCenter ? delta1 : delta2));
-          path = [[ 'M', x, env.opt.margins[0]], ['L', x, env.opt.height - env.opt.margins[2]]];
+          path = [[ 'M', x, env.opt.margins[0]], ['L', x, env.height - env.opt.margins[2]]];
       }
       if (path) {
         //BIND: mouseAreaData.listenerDisabled = true;

@@ -30,6 +30,7 @@ $.fn.chart = function($options) {
         if ($.elycharts.featuresmanager) $.elycharts.featuresmanager.clear($env);
         $env.paper.clear();
         $env.cache = false;
+        if ($env.autoresize) $(window).unbind('resize', $env.autoresize);
         this.html("");
         this.data('elycharts_env', false);
       }
@@ -50,37 +51,68 @@ $.fn.chart = function($options) {
     $env = _initEnv(this, $options);
 
     this.data('elycharts_env', $env);
-    
   } else {
+  	if (!$options) $options = {};
     $options = _normalizeOptions($options, $env.opt);
     
     // Already initialized
     $env.oldopt = common._clone($env.opt);
     $env.opt = $.extend(true, $env.opt, $options);
     $env.newopt = $options;
+    $env.oldwidth = $env.width;
+    $env.oldheight = $env.height;
     
   }
   
   $env.cache = $options['enableInternalCaching'] ? {} : false;
   
   _processGenericConfig($env, $options);
+
+  if ($env.opt.autoresize) {
+  	if (!$env.autoresize) {
+  		var that = this;
+  		$env.autoresize = _debounce(function() {
+  			that.chart();
+  		});
+  		$(window).bind('resize', $env.autoresize);
+  	}
+  } else {
+  	if ($env.autoresize) {
+  		$(window).unbind('resize', $env.autoresize);
+  		$env.autoresize = false;
+  	}
+  }
+  
+  
   $env.pieces = $.elycharts[$env.opt.type].draw($env);
   
   return this;
+}
+
+// http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
+function _debounce(func, threshold, execAsap) {
+  var timeout;
+  return function debounced () {
+    var obj = this, args = arguments;
+    function delayed () {
+      if (!execAsap) func.apply(obj, args);
+      timeout = null; 
+    };
+
+    if (timeout) clearTimeout(timeout);
+    else if (execAsap) func.apply(obj, args);
+
+    timeout = setTimeout(delayed, threshold || 100); 
+  };
 }
 
 /**
  * Must be called only in first call to .chart, to initialize elycharts environment.
  */
 function _initEnv($container, $options) {
-  if (!$options.width)
-    $options.width = $container.width();
-  if (!$options.height)
-    $options.height = $container.height();
-
   var $env = {
     id : $.elycharts.lastId ++,
-    paper : common._RaphaelInstance($container.get()[0], $options.width, $options.height),
+    paper : common._RaphaelInstance($container.get()[0], 0, 0),
     container : $container,
     plots : [],
     opt : $options
@@ -97,6 +129,9 @@ function _initEnv($container, $options) {
 function _processGenericConfig($env, $options) {
   if ($options.style)
     $env.container.css($options.style);
+  $env.width = $options.width ? $options.width : $env.container.width();
+  $env.height = $options.height ? $options.height : $env.container.height();
+  $env.paper.setSize($env.width, $env.height);
 }
 
 /**
@@ -207,67 +242,9 @@ function _normalizeOptions($options, $fullopt) {
 * @param $plotType for line chart can be "line" or "bar", for other types is equal to chart type.
 */
 function _normalizeOptionsSerie($section, $type, $plotType, $fullopt) {
-  /*
-  _normalizeOptionsColor($section, $type, $plotType, $fullopt);
-  if ($section.values)
-    for (var value in $section.values)
-      _normalizeOptionsColor($section.values[value], $type, $plotType, $fullopt);
-  */
-    
   if ($section.stackedWith) {
     $section.stacked = $section.stackedWith;
     delete $section.stackedWith;
-  }
-}
-
-/**
-* Manage "color" attribute.
-* @param $section Section part of external conf passed
-* @param $type Chart type
-* @param $plotType for line chart can be "line" or "bar", for other types is equal to chart type.
-*/
-function _normalizeOptionsColor($section, $type, $plotType, $fullopt) {
-  if ($section.color) {
-    var color = $section.color;
-    
-    if (!$section.plotProps)
-      $section.plotProps = {};
-
-    if ($type == 'line' || $type == 'pie') {
-      if ($section.plotProps && !$section.plotProps.stroke && !$fullopt.defaultSeries.plotProps.stroke)
-        $section.plotProps.stroke = color;
-    }
-    if (($type == 'line' && $plotType == 'bar') || $type == 'pie') {
-      if ($section.plotProps && !$section.plotProps.fill && !$fullopt.defaultSeries.plotProps.fill)
-        $section.plotProps.fill = color;
-    }
-      
-    if (!$section.tooltip)
-      $section.tooltip = {};
-    // Is disabled in defaultSetting i should not set color
-    if (!$section.tooltip.frameProps && $fullopt.defaultSeries.tooltip.frameProps)
-      $section.tooltip.frameProps = {};
-    if ($section.tooltip && $section.tooltip.frameProps && !$section.tooltip.frameProps.stroke && !$fullopt.defaultSeries.tooltip.frameProps.stroke)
-      $section.tooltip.frameProps.stroke = color;
-      
-    if (!$section.legend)
-      $section.legend = {};
-    if (!$section.legend.dotProps)
-      $section.legend.dotProps = {};
-    if ($section.legend.dotProps && !$section.legend.dotProps.fill)
-      $section.legend.dotProps.fill = color;
-      
-    if ($type == 'line' && $plotType == 'line') {
-      if (!$section.dotProps)
-        $section.dotProps = {};
-      if ($section.dotProps && !$section.dotProps.fill && !$fullopt.defaultSeries.dotProps.fill)
-        $section.dotProps.fill = color;
-        
-      if (!$section.fillProps)
-        $section.fillProps = {};
-      if ($section.fillProps && !$section.fillProps.fill && !$fullopt.defaultSeries.fillProps.fill)
-        $section.fillProps.fill = color;
-    }
   }
 }
 
@@ -394,6 +371,10 @@ $.elycharts.common = {
         return true;
       else if (changes[i] == 'axis' && (env.newopt.axis || env.newopt.defaultAxis))
         return true;
+      else if (changes[i] == 'width' && (env.oldwidth != env.width))
+      	return true;
+      else if (changes[i] == 'height' && (env.oldheight != env.height))
+      	return true;
       else if (changes[i].substring(0, 9) == "features.") {
         changes[i] = changes[i].substring(9);
         if (env.newopt.features && env.newopt.features[changes[i]])
@@ -751,14 +732,14 @@ $.elycharts.common = {
     if (!marginlimit)
       return x + dx;
     x = x + dx;
-    return dx > 0 && x > env.opt.width - env.opt.margins[1] ? env.opt.width - env.opt.margins[1] : (dx < 0 && x < env.opt.margins[3] ? env.opt.margins[3] : x);
+    return dx > 0 && x > env.width - env.opt.margins[1] ? env.width - env.opt.margins[1] : (dx < 0 && x < env.opt.margins[3] ? env.opt.margins[3] : x);
   },
   
   _movePathY : function(env, y, dy, marginlimit) {
     if (!marginlimit)
       return y + dy;
     y = y + dy;
-    return dy > 0 && y > env.opt.height - env.opt.margins[2] ? env.opt.height - env.opt.margins[2] : (dy < 0 && y < env.opt.margins[0] ? env.opt.margins[0] : y);
+    return dy > 0 && y > env.height - env.opt.margins[2] ? env.height - env.opt.margins[2] : (dy < 0 && y < env.opt.margins[0] ? env.opt.margins[0] : y);
   },
 
   /**
@@ -862,7 +843,6 @@ $.elycharts.common = {
     var previousElement = false;
     for (var i = 0; i < pieces.length; i++) {
       var piece = pieces[i];
-
       if (typeof piece.show == 'undefined' || piece.show) {
         // If there is piece.animation.element, this is the old element that must be transformed to the new one
         piece.element = piece.animation && piece.animation.element ? piece.animation.element : false;

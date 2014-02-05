@@ -22,8 +22,8 @@ $.elycharts.pie = {
     //var paper = env.paper;
     var opt = env.opt;
     
-    var w = env.opt.width - env.opt.margins[1] - env.opt.margins[3];
-    var h = env.opt.height - env.opt.margins[0] - env.opt.margins[2];
+    var w = env.width - env.opt.margins[1] - env.opt.margins[3];
+    var h = env.height - env.opt.margins[0] - env.opt.margins[2];
     var r = env.opt.r ? env.opt.r : Math.floor((w < h ? w : h) / 2 * (env.opt.rPerc ? env.opt.rPerc / 100 : 0.8));
     var cx = (env.opt.cx ? env.opt.cx : Math.floor(w / 2)) + env.opt.margins[3];
     var cy = (env.opt.cy ? env.opt.cy : Math.floor(h / 2)) + env.opt.margins[0];

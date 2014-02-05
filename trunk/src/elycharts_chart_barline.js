@@ -31,9 +31,9 @@ $.elycharts.barline = {
     var opt = env.opt;
     
     env.xmin = opt.margins[3];
-    env.xmax = opt.width - opt.margins[1];
+    env.xmax = env.width - opt.margins[1];
     env.ymin = opt.margins[0];
-    env.ymax = opt.height - opt.margins[2];
+    env.ymax = env.height - opt.margins[2];
     
     var maxvalue = 0;
     for (var serie in opt.values) {

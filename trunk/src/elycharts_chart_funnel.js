@@ -24,7 +24,7 @@ $.elycharts.funnel = {
     var opt = env.opt;
     
     env.xmin = opt.margins[3];
-    env.xmax = opt.width - opt.margins[1];
+    env.xmax = env.width - opt.margins[1];
     env.ymin = opt.margins[0] + Math.abs(opt.rh);
 
     for (var serie in opt.values) {
@@ -33,7 +33,7 @@ $.elycharts.funnel = {
       var lastwidthratio = opt.method == 'width' ? values[values.length - 1] / (values[0] ? values[0] : 1) :
         Math.sqrt(values[values.length - 1] / (values[0] ? values[0] : 1) * Math.pow(1 / 2, 2)) * 2;
       
-      env.ymax = opt.height - opt.margins[2] - lastwidthratio * Math.abs(opt.rh);
+      env.ymax = env.height - opt.margins[2] - lastwidthratio * Math.abs(opt.rh);
       
       var pieces = this.pieces(env, serie, 0, 1, 1, values);
     }

@@ -1,4 +1,6 @@
 v2.1.5-SNAPSHOT
+- updating values now recompute width/height and correctly adapt the paper and chart to the new size.
+- separate computed width from option.width (so empty width is correctly applied on update): plugins should now use env.width instead of env.opt.width.
 - added support for rPerc (radius expressed in percentage of available space) for pie charts.
 - changed pixelWorkAround to be enabled only on SVG (to be verified)
 - fixed tooltip (and mouse) management in IE compatible mode (Issue #10)

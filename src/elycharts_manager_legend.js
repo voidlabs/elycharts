@@ -42,7 +42,7 @@ $.elycharts.legendmanager = {
       var autowidth = 1;
       propswidth = env.width;
     }
-
+    
     var wauto = 0;
     var items = [];
     // env.opt.legend normalmente è { serie : 'Legend', ... }, per i pie invece { serie : ['Legend', ...], ... }
@@ -144,7 +144,13 @@ $.elycharts.legendmanager = {
     }
     var borderPath = [ [ 'RECT', propsx, props.y, propsx + propswidth, props.y + props.height, props.r ] ];
     var border = common.showPath(env, borderPath).attr(props.borderProps);
-    items.push(border);
+
+    // The legend rectangle is written as the last one because it depends on the sizes of the contents but it should
+    // be drawn behind the others, so at the end we bring to front all items but the border
+    for(i in items) items[i].toFront();
+    
+    items.unshift(border);
+    
     env.legenditems = items;
   }
 }

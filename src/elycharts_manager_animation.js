@@ -24,72 +24,29 @@ $.elycharts.animationmanager = {
   },
   
   stepAnimation : function(env, pieces) {
-    // env.pieces sono i vecchi pieces, ed e' sempre un array completo di tutte le sezioni
-    // pieces sono i nuovi pezzi da mostrare, e potrebbe essere parziale
-    //console.warn('from1', common._clone(env.pieces));
-    //console.warn('from2', common._clone(pieces));
-    pieces = this._stepAnimationInt(env, env.pieces, pieces);
-    //console.warn('to', common._clone(pieces));
+    pieces = this._stepAnimationInt(env, pieces);
   },
-
-  _stepAnimationInt : function(env, pieces1, pieces2, section, serie, internal) {
-    // Se pieces2 == null deve essere nascosto tutto pieces1
-    var newpieces = [], newpiece;
-    var j = 0;
-    for (var i = 0; i < pieces1.length; i ++) {
-      var animationProps = common.areaProps(env, section ? section : pieces1[i].section, serie ? serie : pieces1[i].serie);
+  
+  _stepAnimationInt : function(env, pieces, section, serie, internal) {
+    for (var i = 0; i < pieces.length; i++) {
+      var animationProps = common.areaProps(env, section ? section : pieces[i].section, serie ? serie : pieces[i].serie);
       if (animationProps && animationProps.stepAnimation)
         animationProps = animationProps.stepAnimation;
       else
         animationProps = env.opt.features.animation.stepAnimation;
-
-      // Se il piece attuale c'e' solo in pieces2 lo riporto nei nuovi, impostando come gia' mostrato
-      // A meno che internal = true (siamo in un multipath, nel caso se una cosa non c'e' va considerata da togliere)
-      if (pieces2 && (j >= pieces2.length || !common.samePiecePath(pieces1[i], pieces2[j]))) {
-        if (!internal) {
-          pieces1[i].show = false;
-          newpieces.push(pieces1[i]);
-        } else {
-          newpiece = { path : false, attr : false, show : true };
-          newpiece.animation = {
-            element : pieces1[i].element ? pieces1[i].element : false,
-            speed : animationProps && animationProps.speed ? animationProps.speed : 300,
-            easing : animationProps && animationProps.easing ? animationProps.easing : '',
-            delay : animationProps && animationProps.delay ? animationProps.delay : 0
-          }
-          newpieces.push(newpiece);
+      
+      if (typeof pieces[i].paths == 'undefined') {
+        if (animationProps && animationProps.active && pieces[i].animation) {
+          pieces[i].animation.speed = animationProps && animationProps.speed ? animationProps.speed : 300;
+          pieces[i].animation.easing = animationProps && animationProps.easing ? animationProps.easing : '';
+          pieces[i].animation.delay = animationProps && animationProps.delay ? animationProps.delay : 0;
+          if (!pieces[i].animation.element)
+            pieces[i].animation.startAttr = {opacity : 0};
         }
-      }
-      // Bisogna gestire la transizione dal vecchio piece al nuovo
-      else {
-        newpiece = pieces2 ? pieces2[j] : { path : false, attr : false };
-        newpiece.show = true;
-        if (typeof pieces1[i].paths == 'undefined') {
-          // Piece a singolo path
-          newpiece.animation = {
-            element : pieces1[i].element ? pieces1[i].element : false,
-            speed : animationProps && animationProps.speed ? animationProps.speed : 300,
-            easing : animationProps && animationProps.easing ? animationProps.easing : '',
-            delay : animationProps && animationProps.delay ? animationProps.delay : 0
-          }
-          // Se non c'era elemento precedente deve gestire il fadeIn
-          if (!pieces1[i].element)
-            newpiece.animation.startAttr = {opacity : 0};
-          
-        } else {
-          // Multiple path piece
-          newpiece.paths = this._stepAnimationInt(env, pieces1[i].paths, pieces2[j].paths, pieces1[i].section, pieces1[i].serie, true);
-        }
-        newpieces.push(newpiece);
-        j++;
+      } else {
+        this._stepAnimationInt(env, pieces[i].paths, pieces[i].section, pieces[i].serie, true);
       }
     }
-    // If there are pieces left in pieces2 i must add them unchanged
-    if (pieces2)
-      for (; j < pieces2.length; j++)
-        newpieces.push(pieces2[j]);
-
-    return newpieces;
   },
   
   startAnimation : function(env, pieces) {
@@ -100,8 +57,8 @@ $.elycharts.animationmanager = {
           props = props.startAnimation;
         else
           props = env.opt.features.animation.startAnimation;
-          
-        if (props.active) {
+        
+        if (props && props.active) {
           if (props.type == 'simple' || pieces[i].section != 'Series')
             this.animationSimple(env, props, pieces[i]);
           if (props.type == 'grow')

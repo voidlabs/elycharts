@@ -85,11 +85,66 @@ $.fn.chart = function($options) {
   
   
   var pieces = $.elycharts[$env.opt.type].draw($env);
+  if ($env.pieces) {
+    pieces = _updatePieces($env, $env.pieces, pieces);
+  }
   common._show($env, pieces);
   $env.pieces = pieces;
 
   return this;
 }
+
+function _updatePieces(env, pieces1, pieces2, section, serie, internal) {
+  // Se pieces2 == null deve essere nascosto tutto pieces1
+  var newpieces = [], newpiece;
+  var j = 0;
+  for (var i = 0; i < pieces1.length; i ++) {
+
+    // Se il piece attuale c'e' solo in pieces2 lo riporto nei nuovi, impostando come gia' mostrato
+    // A meno che internal = true (siamo in un multipath, nel caso se una cosa non c'e' va considerata da togliere)
+    if (pieces2 && (j >= pieces2.length || !common.samePiecePath(pieces1[i], pieces2[j]))) {
+      if (!internal) {
+        pieces1[i].show = false;
+        newpieces.push(pieces1[i]);
+      } else {
+        newpiece = { path : false, attr : false };
+        newpiece.show = true;
+        newpiece.animation = {
+          element : pieces1[i].element ? pieces1[i].element : false,
+          speed : 0,
+          easing : '',
+          delay : 0
+        }
+        newpieces.push(newpiece);
+      }
+    }
+    // Bisogna gestire la transizione dal vecchio piece al nuovo
+    else {
+      newpiece = pieces2 ? pieces2[j] : { path : false, attr : false };
+      newpiece.show = true;
+      if (typeof pieces1[i].paths == 'undefined') {
+        newpiece.animation = {
+          element : pieces1[i].element ? pieces1[i].element : false,
+          speed : 0,
+          easing : '',
+          delay : 0
+        }
+      } else {
+        // Multiple path piece
+        newpiece.paths = _updatePieces(env, pieces1[i].paths, pieces2[j].paths, pieces1[i].section, pieces1[i].serie, true);
+      }
+      newpieces.push(newpiece);
+      j++;
+    }
+  }
+  // If there are pieces left in pieces2 i must add them unchanged
+  if (pieces2)
+    for (; j < pieces2.length; j++)
+      newpieces.push(pieces2[j]);
+
+  return newpieces;
+};
+
 
 // http://unscriptable.com/index.php/2009/03/20/debouncing-javascript-methods/
 function _debounce(func, threshold, execAsap) {
@@ -850,7 +905,7 @@ $.elycharts.common = {
     var previousElement = false;
     for (var i = 0; i < pieces.length; i++) {
       var piece = pieces[i];
-      if (typeof piece.show == 'undefined' || piece.show) {
+      if ((typeof piece.show == 'undefined' || piece.show) && (typeof piece.parent == 'undefined' || typeof piece.parent.show == 'undefined' || piece.parent.show)) {
         // If there is piece.animation.element, this is the old element that must be transformed to the new one
         piece.element = piece.animation && piece.animation.element ? piece.animation.element : false;
         piece.hide = false;

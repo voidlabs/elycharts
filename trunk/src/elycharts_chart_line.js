@@ -339,7 +339,6 @@ $.elycharts.line = {
               
         for (i = 0; i < labels.length; i++) 
           if ((typeof labels[i] != 'boolean' && labels[i] != null) || labels[i]) {
-
             if (!axis.x.props.labelsSkip || i >= axis.x.props.labelsSkip) {
               val = labels[i];
               
@@ -432,13 +431,13 @@ $.elycharts.line = {
               var dist = axis.x.props.labelsMarginRight ? axis.x.props.labelsMarginRight / 2 : 0;
               if (axis.x.props.labelsHideCovered && lastShownLabelRect && collide(rect, lastShownLabelRect, dist)) {
               	labe.hide();
-              	labels[i] = false;
+              	// labels[i] = false;
               } else {
                 boundingbox = bbox(rect);
                 // Manage label overflow
                 if (props.nx == 'auto' && (boundingbox.x < 0 || boundingbox.x+boundingbox.width > env.width)) {
                   labe.hide();
-                  labels[i] = false;
+                  // labels[i] = false;
                 } else {
                   lastShownLabelRect = rect;
                 }
@@ -475,6 +474,7 @@ $.elycharts.line = {
           paths = [];
           for (i = axis[j].props.labelsSkip ? axis[j].props.labelsSkip : 0; i <= props.ny; i++) {
             var deltaY = (env.height - opt.margins[2] - opt.margins[0]) / props.ny;
+            // TODO we should never set "props". We should use local variables for derived value (so to correctly deal with updates) 
             if (j == 'r') {
               labx = env.width - opt.margins[1] + axis[j].props.labelsDistance;
               if (!axis[j].props.labelsProps["text-anchor"])

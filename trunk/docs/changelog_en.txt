@@ -1,4 +1,8 @@
 v2.1.5-SNAPSHOT
+- changed stepAnimation by adding the "active" parameter to be enabled, otherwise ignored (Issue #35)
+- fixed stepAnimation to not be enabled if stepAnimation is declared to false (Issue #35) 
+- rewritten the update logic to work even without animation manager and to deal with partial updates (Issue #36)
+- fixed labels visibility un update (they were hidden but never made visibile on update if needed) 
 - fixed legend rewriting/updating (Issue #38)
 - fixed support for roundedCorners in legend "dots" (adding support for "rounded rects" svg paths and fixing move method for 'Q').
 - fixed tooltip visiblity when some tooltip value is missing (compared to number of the serie values) (Issue #37) 

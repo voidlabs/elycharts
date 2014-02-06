@@ -538,10 +538,10 @@ $.elycharts.common = {
       rounded = 1;
     var l1 = (p2x - p1x) / 2,
         l2 = (p3x - p2x) / 2,
-        a = Math.atan((p2x - p1x) / Math.abs(p2y - p1y)),
-        b = Math.atan((p3x - p2x) / Math.abs(p2y - p3y));
-    a = p1y < p2y ? Math.PI - a : a;
-    b = p3y < p2y ? Math.PI - b : b;
+        a = Math.atan(Math.abs(p2x - p1x) / Math.abs(p2y - p1y)),
+        b = Math.atan(Math.abs(p3x - p2x) / Math.abs(p2y - p3y));
+    a = (p1y < p2y && p2x > p1x) || (p1y > p2y && p2x < p1x) ? Math.PI - a : a;
+    b = (p3y < p2y && p3x > p2x) || (p3y > p2y && p3x < p2x) ? Math.PI - b : b;
     if (method == 2) {
       // If added by Bago to avoid curves beyond min or max
       if ((a - Math.PI / 2) * (b - Math.PI / 2) > 0) {
@@ -568,65 +568,70 @@ $.elycharts.common = {
     };
   },
   
-  _linepathRevert : function(path) {
-    var rev = [], anc = false;
-    for (var i = path.length - 1; i >= 0; i--) {
-      switch (path[i][0]) {
-        case "M" : case "L" :
-          if (!anc)
-            rev.push( [ rev.length ? "L" : "M", path[i][1], path[i][2] ] );
-          else
-            rev.push( [ "C", anc[0], anc[1], anc[2], anc[3], path[i][1], path[i][2] ] );
-          anc = false;
-          
-          break;
-        case "C" :
-          if (!anc)
-            rev.push( [ rev.length ? "L" : "M", path[i][5], path[i][6] ] );
-          else
-            rev.push( [ "C", anc[0], anc[1], anc[2], anc[3], path[i][5], path[i][6] ] );
-          anc = [ path[i][3], path[i][4], path[i][1], path[i][2] ];
-      }
-    }
-    return rev;
-  },
-  
   _linepath : function ( points, rounded ) {
     var path = [];
     if (rounded) {
       var anc = false;
-      for (var j = 0, jj = points.length - 1; j < jj ; j++) {
-        if (j) {
-          var a = this._linepathAnchors(points[j - 1][0], points[j - 1][1], points[j][0], points[j][1], points[j + 1][0], points[j + 1][1], rounded);
-          path.push([ "C", anc[0], anc[1], a.x1, a.y1, points[j][0], points[j][1] ]);
-          anc = [ a.x2, a.y2 ];
-        } else {
-          path.push([ "M", points[j][0], points[j][1] ]);
-          anc = [ points[j][0], points[j][1] ];
-        }
+      for (var j = 0, jj = points.length; j < jj ; j++) {
+        var x = points[j][0], y = points[j][1];
+        if (x != null && y != null) {
+          if (anc) {
+            if (j + 1 != jj && points[j + 1][0] != null && points[j + 1][1] != null) {
+              var a = this._linepathAnchors(points[j - 1][0], points[j - 1][1], points[j][0], points[j][1], points[j + 1][0], points[j + 1][1], rounded);
+              path.push([ "C", anc[0], anc[1], a.x1, a.y1, points[j][0], points[j][1] ]);
+              // path.push([ "M", anc[0], anc[1] ]);
+              // path.push([ "L", a.x1, a.y1 ]);
+              // path.push([ "M", points[j][0], points[j][1] ]);
+              anc = [ a.x2, a.y2 ];
+            } else {
+              path.push([ "C", anc[0], anc[1], points[j][0], points[j][1], points[j][0], points[j][1] ]);
+              anc = [ points[j][0], points[j][1] ];
+            }
+          } else {
+            path.push([ "M", points[j][0], points[j][1] ]);
+            anc = [ points[j][0], points[j][1] ];
+          }
+        } else anc = false;
       }
-      if (anc)
-        path.push([ "C", anc[0], anc[1], points[jj][0], points[jj][1], points[jj][0], points[jj][1] ]);
       
-    } else
+    } else {
+      var prevx = null;
+      var prevy = null;
       for (var i = 0; i < points.length; i++) {
         var x = points[i][0], y = points[i][1];
-        path.push([i == 0 ? "M" : "L", x, y]);
+        if (x != null && y != null) {
+        	path.push([prevx == null || prevy == null ? "M" : "L", x, y]);
+        }
+        prevx = x;
+        prevy = y;
       }
+    }
     
     return path;
   },
 
   _lineareapath : function (points1, points2, rounded) {
-    var path = this._linepath(points1, rounded), path2 = this._linepathRevert(this._linepath(points2, rounded));
-    
-    for (var i = 0; i < path2.length; i++)
-      path.push( !i ? [ "L", path2[0][1], path2[0][2] ] : path2[i] );
-    
-    if (path.length)
-      path.push(['z']);
-
-    return path;
+    var path = this._linepath(points1, rounded);
+    var path2 = this._linepath(points2.reverse(), rounded);
+    var finalPath = [];
+    var firstPushed = null;
+    for (var i = 0; i <= path.length; i++) {
+      if (i == path.length || path[i][0] == "M") {
+    	  if (firstPushed != null) {
+    		for (var j = path.length - i; j <= path.length - firstPushed; j++) {
+      		  if (path2[j][0] == "M") finalPath.push([ "L", path2[j][1], path2[j][2] ]);
+      		  else finalPath.push(path2[j]);
+    		}
+    		finalPath.push(['z']);
+    	    firstPushed = null;
+    	  }
+    	  if (i != path.length) finalPath.push(path[i]);
+      } else {
+    	  finalPath.push(path[i]);
+    	  if (firstPushed == null) firstPushed = i;
+      }
+    }
+    return finalPath;
   },
   
   /**
@@ -786,6 +791,7 @@ $.elycharts.common = {
   },
   
   _movePathX : function(env, x, dx, marginlimit) {
+    if (x == null) return null;
     if (!marginlimit)
       return x + dx;
     x = x + dx;
@@ -793,6 +799,7 @@ $.elycharts.common = {
   },
   
   _movePathY : function(env, y, dy, marginlimit) {
+    if (y == null) return null;
     if (!marginlimit)
       return y + dy;
     y = y + dy;

@@ -289,6 +289,9 @@ $.elycharts.templates = {
     barMargins : 0,
     // overlap between additional columns over the previous one (ignored for the first serie)
     barOverlapPerc : 0,
+    
+    // disable this if you want to use null values and want the lines/area to be broken over null values 
+    avgOverNulls: true,
 
     // Axis
     defaultAxis : {

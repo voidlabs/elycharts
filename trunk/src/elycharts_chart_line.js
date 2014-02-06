@@ -73,7 +73,7 @@ $.elycharts.line = {
             var showValues = []
             for (i = 0; i < values[serie].length; i++) {
               var val = values[serie][i];
-              if (val == null) {
+              if (props.avgOverNulls && val == null) {
                 if (props.type == 'bar')
                   val = 0;
                 else {
@@ -102,10 +102,10 @@ $.elycharts.line = {
                 plot.to = [];
                 cum = 0;
                 for (i = 0; i < showValues.length; i++)
-                  plot.to.push(cum += showValues[i]);
+                  plot.to.push(cum += showValues[i] != null ? showValues[i] : 0);
               }
               for (i = 0; i < showValues.length; i++)
-                plot.from.push(0);
+                plot.from.push(plot.to[i] != null ? 0 : null);
 
             } else {
               // Stacked
@@ -117,10 +117,10 @@ $.elycharts.line = {
               cum = 0;
               if (!props.cumulative)
                 for (i = 0; i < showValues.length; i++)
-                  plot.to.push(plot.from[i] + showValues[i]);
+                  plot.to.push(plot.from[i] + (showValues[i] != null ? showValues[i] : 0));
               else
                 for (i = 0; i < showValues.length; i++)
-                  plot.to.push(plot.from[i] + (cum += showValues[i]));
+                  plot.to.push(plot.from[i] + (cum += (showValues[i] != null ? showValues[i] : 0)));
               plots[props.stacked].stack = plot.to;
             }
             
@@ -233,11 +233,18 @@ $.elycharts.line = {
 
               common.colorize(env, indexProps, this._getColorizationKey(props.type), common.getItemColor(env, serie, i));
 
-              var d = plot.to[i] > plot.max ? plot.max : (plot.to[i] < plot.min ? plot.min : plot.to[i]);
               var x = Math.round((props.lineCenter ? deltaBarX / 2 : 0) + opt.margins[3] + i * (props.lineCenter ? deltaBarX : deltaX));
-              var y = Math.round(env.height - opt.margins[2] - deltaY * (d - plot.min));
-              var dd = plot.from[i] > plot.max ? plot.max : (plot.from[i] < plot.min ? plot.min : plot.from[i]);
-              var yy = Math.round(env.height - opt.margins[2] - deltaY * (dd - plot.min)) + (Raphael.VML ? 1 : 0);
+
+              var y = null;
+              if (plot.to[i] != null) {
+                var d = plot.to[i] > plot.max ? plot.max : (plot.to[i] < plot.min ? plot.min : plot.to[i]);
+                y = Math.round(env.height - opt.margins[2] - deltaY * (d - plot.min));
+              }
+              var yy = null;
+              if (plot.from[i] != null) {
+                var dd = plot.from[i] > plot.max ? plot.max : (plot.from[i] < plot.min ? plot.min : plot.from[i]);
+                yy = Math.round(env.height - opt.margins[2] - deltaY * (dd - plot.min)) + (Raphael.VML ? 1 : 0);
+              }
 
               linePath[1].push([x, y]);
 

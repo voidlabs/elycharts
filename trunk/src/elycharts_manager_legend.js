@@ -17,27 +17,32 @@ var common = $.elycharts.common;
 $.elycharts.legendmanager = {
   
   afterShow : function(env, pieces) {
+	// TODO the whole thing should simply return "pieces" whose visibility is handled by core, so to enable animations and
+    // make things more generic.
+    if (env.legenditems) {
+    	for (item in env.legenditems) {
+    		env.legenditems[item].remove();
+    	}
+    	env.legenditems = false;
+    }
     if (!env.opt.legend || env.opt.legend.length == 0)
       return;
 
     var props = env.opt.features.legend;
     
     if (props === false) return;
-    
-    if (props.x == 'auto') {
+
+    var propsx = props.x;
+    if (propsx == 'auto') {
       var autox = 1;
-      props.x = 0;
+      propsx = 0;
     }
-    if (props.width == 'auto') {
+    var propswidth = props.width;
+    if (propswidth == 'auto') {
       var autowidth = 1;
-      props.width = env.width;
+      propswidth = env.width;
     }
-    
-    var borderPath = [ [ 'RECT', props.x, props.y, props.x + props.width, props.y + props.height, props.r ] ];
-    var border = common.showPath(env, borderPath).attr(props.borderProps);
-    if (autox || autowidth)
-      border.hide();
-    
+
     var wauto = 0;
     var items = [];
     // env.opt.legend normalmente è { serie : 'Legend', ... }, per i pie invece { serie : ['Legend', ...], ... }
@@ -83,17 +88,17 @@ $.elycharts.legendmanager = {
         if (!props.horizontal) {
           // Posizione dell'angolo in alto a sinistra
           h = (props.height - hMargin) / legendCount;
-          w = props.width - wMargin;
-          x = Math.floor(props.x + lMargin);
+          w = propswidth - wMargin;
+          x = Math.floor(propsx + lMargin);
           y = Math.floor(props.y + tMargin + h * i);
         } else {
           h = props.height - hMargin;
           if (!props.itemWidth || props.itemWidth == 'fixed') {
-            w = (props.width - wMargin) / legendCount;
-            x = Math.floor(props.x + lMargin + w * i);
+            w = (propswidth - wMargin) / legendCount;
+            x = Math.floor(propsx + lMargin + w * i);
           } else {
-            w = (props.width - wMargin) - wauto;
-            x = props.x + lMargin + wauto;
+            w = (propswidth - wMargin) - wauto;
+            x = propsx + lMargin + wauto;
           }
           y = Math.floor(props.y + tMargin);
         }
@@ -127,22 +132,20 @@ $.elycharts.legendmanager = {
     }
       
     if (autowidth)
-      props.width = wauto + props.margins[3] + props.margins[1] - 1;
+      propswidth = wauto + props.margins[3] + props.margins[1] - 1;
     if (autox) {
-      props.x = Math.floor((env.width - props.width) / 2);
+      propsx = Math.floor((env.width - propswidth) / 2);
       for (i in items) {
         if (items[i].attrs.x)
-          items[i].attr('x', items[i].attrs.x + props.x);
+          items[i].attr('x', items[i].attrs.x + propsx);
         else
-          items[i].attr('path', common.movePath(env, items[i].attrs.path, [props.x, 0]));
+          items[i].attr('path', common.movePath(env, items[i].attrs.path, [propsx, 0]));
       }
     }
-    if (autowidth || autox) {
-      borderPath = [ [ 'RECT', props.x, props.y, props.x + props.width, props.y + props.height, props.r ] ];
-      border.attr(common.getSVGProps(env, borderPath));
-      //border.attr({path : common.preparePathShow(env, common.getSVGPath(borderPath))});
-      border.show();
-    }
+    var borderPath = [ [ 'RECT', propsx, props.y, propsx + propswidth, props.y + props.height, props.r ] ];
+    var border = common.showPath(env, borderPath).attr(props.borderProps);
+    items.push(border);
+    env.legenditems = items;
   }
 }
 

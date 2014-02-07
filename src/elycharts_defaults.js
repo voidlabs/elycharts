@@ -268,7 +268,9 @@ $.elycharts.templates = {
         dotMargins : [10, 5], // sx, dx
         borderProps : { fill : "white", stroke : "black", "stroke-width" : 1 },
         dotType : 'rect',
-        dotWidth : 10, dotHeight : 10, dotR : 4,
+        dotWidth : 10, dotHeight : 10,
+        // radius for the dots (used to be 4 but there also was a bug preventing radius support, so moved to 0) 
+        dotR : 0,
         dotProps : { type : "rect", width : 10, height : 10 },
         textProps : { font: '12px Arial', fill: "#000" }
       },

@@ -1,6 +1,6 @@
 /********* Source File: extra-resources/header.js*********/
 /*!*********************************************************************
- * ELYCHARTS v2.1.5 $Id$ 
+ * ELYCHARTS v2.1.6-SNAPSHOT $Id$ 
  * A Javascript library to generate interactive charts with vectorial graphics.
  *
  * Copyright (c) 2010-2014 Void Labs s.n.c. (http://void.it)

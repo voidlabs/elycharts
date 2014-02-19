@@ -1,0 +1,95 @@
+v2.1.5 (2014-02-19)
+- fixed support for animations for charts with null values
+- added support for null values (avgOverNulls: false) in line charts
+- changed stepAnimation by adding the "active" parameter to be enabled, otherwise ignored (Issue #35)
+- fixed stepAnimation to not be enabled if stepAnimation is declared to false (Issue #35) 
+- rewritten the update logic to work even without animation manager and to deal with partial updates (Issue #36)
+- fixed labels visibility un update (they were hidden but never made visibile on update if needed) 
+- fixed legend rewriting/updating (Issue #38)
+- fixed support for roundedCorners in legend "dots" (adding support for "rounded rects" svg paths and fixing move method for 'Q').
+- fixed tooltip visiblity when some tooltip value is missing (compared to number of the serie values) (Issue #37) 
+- updating values now recompute width/height and correctly adapt the paper and chart to the new size.
+- separate computed width from option.width (so empty width is correctly applied on update): plugins should now use env.width instead of env.opt.width.
+- added support for rPerc (radius expressed in percentage of available space) for pie charts.
+- changed pixelWorkAround to be enabled only on SVG (to be verified)
+- fixed tooltip (and mouse) management in IE compatible mode (Issue #10)
+- fixed erros when using "legend: false" or legend without margin definitions (Issue #14)
+- added support for valuesPalette and seriesPalette feature to automatically assign colors starting from a cycling palette (Issue #9) 
+- added support for single value coloring in bar charts (each column can be printed with a different color)
+- added caching for internal properties "inheritance" computation (enabled by default, disable by setting enableInternalCaching to false)
+- added "margins" support to pie chart and fixed cx/cy usage (cy was ignored in favor of cx only) (Issue #31)
+- rewrote "color" property inheritance to better deal with mixed line/bar charts, chart updates, have better performances and pie support (Issue #33)
+- rewrite "legend" properties management to simplify code (should not change the behaviour)
+- added "clear" method to featuresmanager so that features can be properly react to chart "clearing" (Issue #32 hint by pduval@github)
+- bar chart: inherit stroke color from serie color if not specified (Issue #30)
+- fixed width computation for mouse areas using mousearea: "index" option
+- added "barOverlapPerc" property to allow overlapping of columns for the same X in different series
+- update old copyright year references to 2010-2014 
+
+v2.1.4 (2014-01-14)
+- fix compatibility with RaphaelJs 2.0+: .rotation attribute is no more available so axis titles were not rotated (Issue #27)
+- fix compatibility with jQuery 1.9+: $.browser.msie no more available. Switched to Raphael.VML, with the hope this was the intended check (Issue #28)
+- fix compatibility with Raphaeljs 2.0+: animations didn't work due to animateWith signature/behaviour changes (Issue #23)
+- fix for colors propagation from defaultSeries to single serie (Issue #11)
+- added "auto" modes for labelsAnchor and labelsPos so that most use cases it will simply set sensible values for them based on labelsCenter/labelsRotate
+- added support for labels hiding (for overlapping and *horizontal* overflow) also for rotated labels 
+- various fixes for x labels. (mostly rewrote axis labels handling)
+- fix for "grid.nx" values when nx < ny and they are not "auto" (Issue #13)
+- highlight: improvement in stepAnimation management and overlayprops.
+- added support for function as tooltip value
+
+v2.1.3
+- changed default value to "false" for axis.labels
+- changed default value to "false" for series.dot
+- changed default value to "false" for features.grid.draw
+- changed default value to "4" for features.grid.ny
+- changed default value to "false" for features.grid.forceBorder
+- changed default value to "4" for features.legend.dotR
+- added support for command execution via $.chart("COMMAND"). Supported commands: config, clear
+- added support for null values in line charts (displayed with an average of near points)
+- added series.dotShowOnNull and series.mouseareaShowOnNull (default to false) to support null values and what to do with them
+- added features.grid.evenVProps, evenHProps, oddVProps, oddHProps to display grid bands
+- added offset tooltip option
+- added support for "style" option
+- highlight: added support for scale with dots, optimized scale properties to have only one numeric value (not array)
+- better configuration handling for templates and subsequent calls
+- fix in config colors normalization
+- better handling for values and labels (support for null/empty labels)
+- fix for labels overflow on X axis
+- pie chart: fixed support for serie.r < 0
+- fix for tooltip color/frameProps settings where specified with shortcut "serie.color"
+- line chart: fixed line chart not rounded
+- legend: fixed a lot (was broken in almost all configurations...)
+- line chart: changed the way labels are drawn and spaced on x axis (fix for labelsHideCovered)
+
+v2.1.2
+- support for series.empty.tooltip e series.empty.label
+- refactoring object visualization phase
+- support for "zindex" property, to set the order of the object. It should be specified in every "*Props" settings, like a SVG Attr
+- default zIndex for dots in line chart is "5" (so dots are shown above other objects)
+- fix #6: Using a simple line chart with a single serie and a single value in that serie breaks elychart.
+- cleanup
+- fix transitions
+
+v2.1.1
+- REFACTORING: true modular management, code split in several components
+- script to build library in single form and in minimized single form
+- fix rendering errors
+- fix highlight in hidden paths
+- fix color management in line chart
+- support for "valueThresold" option in pie chart
+- fix drawing 360 degrees pie slice
+- improvements in anchorManager for bind support (fix when transitions occours)
+- fix manager tooltip
+- line chart: support for rounded : Array, to set a different method of rounding ( [#, 2] is for method suggested by Bago )
+- fix in number precision and sharpening for axis min/max and label calculations [#4]
+- fix in reg animation with only 1 value
+- fix in label rendering when hiding all series and re-showing one [#1]
+- fix in funnel highlight animation [#2]
+- code cleanup
+- fix in line generation for series with only one value
+- moved option labelsCenter to features.grid.labelsCenter
+- support for features.mousearea.indexCenter (bar|line|auto). Improvement in serie.lineCenter and features.highlight.indexHighlight, features.grid.labelsCenter (both suppors "auto" value)
+- fixes in reg animation
+- fix empty pie animations
+- added option serie.tooltip.active

@@ -53,9 +53,9 @@ $.elycharts.templates['raphael_analytics'] = {
         },
         startAnimation: { // use an animation to start plotting the chart
             active: true,
-            type: "avg",
+            type: "reg",
             // start from the average line.
-            speed: 1000,
+            speed: 10000,
             // animate in 1 second.
             easing: ">"
         },
@@ -180,8 +180,8 @@ $.elycharts.templates['raphael_analytics'] = {
 }
 
 // the chart values
-var thevalues = [8, 25, 127, 25, 54, 59, 79, 47, 27, 44, 44, 51, 56, 83, 12, 91, 52, 12, 40, 8, 60, 29, 7, 33, 56, 25, 1, 78, 70, 68, 2];
-var thevalues2 = [1821, 1575, 1127, 4525, 1254, 7559, 4739, 1457, 2671, 4547, 1244, 4351, 856, 5683, 912, 6791, 3152, 1723, 4560, 1238, 7660, 4239, 3447, 4353, 5643, 2235, 1234, 7548, 7230, 1268, 2452];
+var thevalues = [8, 25, 127, null, 54, 59, 79, 47, 27, 44, 44, 51, 56, 83, 12, 91, 52, 12, 40, 8, 60, 29, 7, 33, 56, 25, 1, 78, 70, 68, 2];
+var thevalues2 = [1821, 1575, 1127, null, 1254, 7559, 4739, 1457, 2671, 4547, 1244, 4351, 856, 5683, 912, 6791, 3152, 1723, 4560, 1238, 7660, 4239, 3447, 4353, 5643, 2235, 1234, 7548, 7230, 1268, 2452];
 
 // let's loop to build tooltips and x labels.
 var thetooltips = new Array(thevalues.length);
@@ -217,13 +217,14 @@ $("#mychart").chart({
   <!-- the div where we are going to plot -->
 <div id="mychart" style="width: 100%; height: 300px"></div>
 <script language="javascript">
-    function newData(count, countSerie, maxSerie) {
+    function newData(count, max, countSerie, maxSerie) {
     	  var vals = {};
     	  for (var k = 0; k < maxSerie; k++) {
     	  	if (k < countSerie) {
             vals['serie'+(k+1)] = new Array(count);
             for (var i = 0; i < vals['serie'+(k+1)].length; i++) {
-              vals['serie'+(k+1)][i] = Math.floor(Math.random()* (i > 0 ? vals['serie'+(k+1)][i-1]*1.5+10 : 100));
+            	if (i < max) vals['serie'+(k+1)][i] = Math.floor(Math.random()* (i > 0 ? vals['serie'+(k+1)][i-1]*1.5+10 : 100));
+            	else vals['serie'+(k+1)][i] = null;
             }
           } else vals['serie'+(k+1)] = false;
         }
@@ -236,9 +237,10 @@ $("#mychart").chart({
         $("#mychart").chart();
     }
 </script>
-<a href="javascript:newData(31, 2, 3)">update data</a>
+<a href="javascript:newData(31, 31, 2, 3)">update data</a>
 <a href="javascript:refreshChart()">refresh chart</a>
-<a href="javascript:newData(50, 3, 3)">update data 2</a>
+<a href="javascript:newData(50, 50, 3, 3)">update data 2</a>
+<a href="javascript:newData(40, 20, 3, 3)">update data 3</a>
 
 
   

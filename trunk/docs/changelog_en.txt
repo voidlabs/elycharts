@@ -1,4 +1,4 @@
-v2.1.5-SNAPSHOT
+v2.1.5 (2014-02-19)
 - fixed support for animations for charts with null values
 - added support for null values (avgOverNulls: false) in line charts
 - changed stepAnimation by adding the "active" parameter to be enabled, otherwise ignored (Issue #35)

@@ -1,6 +1,6 @@
 /********* Source File: extra-resources/header.js*********/
 /*!*********************************************************************
- * ELYCHARTS v2.1.5-SNAPSHOT $Id$ 
+ * ELYCHARTS v2.1.5 $Id$ 
  * A Javascript library to generate interactive charts with vectorial graphics.
  *
  * Copyright (c) 2010-2014 Void Labs s.n.c. (http://void.it)
@@ -277,7 +277,9 @@ $.elycharts.templates = {
         dotMargins : [10, 5], // sx, dx
         borderProps : { fill : "white", stroke : "black", "stroke-width" : 1 },
         dotType : 'rect',
-        dotWidth : 10, dotHeight : 10, dotR : 4,
+        dotWidth : 10, dotHeight : 10,
+        // radius for the dots (used to be 4 but there also was a bug preventing radius support, so moved to 0) 
+        dotR : 0,
         dotProps : { type : "rect", width : 10, height : 10 },
         textProps : { font: '12px Arial', fill: "#000" }
       },
@@ -1993,7 +1995,7 @@ $.elycharts.animationmanager = {
             if (!piece.paths) {
                 npath = [ 'LINE', [], piece.path[0][2]];
                 for (i = 0; i < piece.path[0][1].length; i++)
-                  npath[1].push([ piece.path[0][1][i][0], y ]);
+                  npath[1].push([ piece.path[0][1][i][0], piece.path[0][1][i][1] == null ? null : y ]);
                 piece.animation.startPath.push(npath);
 
             } else {
@@ -2005,8 +2007,8 @@ $.elycharts.animationmanager = {
           case 'Fill':
             npath = [ 'LINEAREA', [], [], piece.path[0][3]];
             for (i = 0; i < piece.path[0][1].length; i++) {
-              npath[1].push([ piece.path[0][1][i][0], y ]);
-              npath[2].push([ piece.path[0][2][i][0], y ]);
+              npath[1].push([ piece.path[0][1][i][0], piece.path[0][1][i][1] == null ? null : y ]);
+              npath[2].push([ piece.path[0][2][i][0], piece.path[0][2][i][1] == null ? null : y ]);
             }
             piece.animation.startPath.push(npath);
             
@@ -2055,11 +2057,14 @@ $.elycharts.animationmanager = {
 
   _animationAvgXYArray : function(arr) {
     var res = [], avg = 0, i;
-    for (i = 0; i < arr.length; i++)
+    var count = 0;
+    for (i = 0; i < arr.length; i++) if (arr[i][1] != null) {
       avg += arr[i][1];
-    avg = avg / arr.length;
+      count++;
+    }
+    avg = avg / count;
     for (i = 0; i < arr.length; i++)
-      res.push([ arr[i][0], avg ]);
+      res.push([ arr[i][0], arr[i][1] == null ? null : avg ]);
     return res;
   },
 
@@ -2133,11 +2138,22 @@ $.elycharts.animationmanager = {
   _animationRegXYArray : function(arr) {
     var res = [];
     var c = arr.length;
+    
+    var start = 0;
+    var end = c - 1;
+    
+    while (arr[start][1] == null) start++;
+    while (arr[end][1] == null) end--;
+    
     var y1 = arr[0][1];
     var y2 = arr[c - 1][1];
     
-    for (var i = 0; i < arr.length; i++)
-      res.push([arr[i][0], y1 + (y2 - y1) / (c - 1) * i]);
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i][1] == null) res.push([ arr[i][0], null ]);
+      else {
+        res.push([ arr[i][0], arr[start][1] + (arr[end][1] - arr[start][1]) / (end - start) * ( i - start) ]);
+      }
+    }
     
     return res;
   },

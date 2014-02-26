@@ -752,18 +752,24 @@ $.elycharts.common = {
     for (var j = 0; j < path.length; j++) {
       var o = path[j];
       switch (o[0]) {
-        // TODO the translation for lowercase actions are all wrong!
+        // 2.1.6 removed translations for lowercase methods:
         // relative movements do not need to be adjusted for moving (or at most, only the first one have to).
         // TODO relative movements this way cannot be forced to stay in marginlimit!
-        case 'M': case 'm': case 'L': case 'l': case 'T': case 't':
+        case 'm': case 'l': case 't':
+        case 'a':
+        case 'c':
+        case 's': case 'q':
+          newpath.push(o);
+          break;
+        case 'M': case 'L': case 'T': 
           // (x y)+
           newpath.push([o[0], this._movePathX(env, o[1], offset[0], marginlimit), this._movePathY(env, o[2], offset[1], marginlimit)]);
           break;
-        case 'A': case 'a':
+        case 'A': 
           // (rx ry x-axis-rotation large-arc-flag sweep-flag x y)+
           newpath.push([o[0], o[1], o[2], o[3], o[4], o[5], this._movePathX(env, o[6], offset[0], marginlimit), this._movePathY(env, o[7], offset[1], marginlimit)]);
           break;
-        case 'C': case 'c':
+        case 'C': 
           // Fixed for uppercase C in 2.1.5
           // (x1 y1 x2 y2 x y)+
           newpath.push([o[0], 
@@ -772,7 +778,7 @@ $.elycharts.common = {
             this._movePathX(env, o[5], offset[0], marginlimit), this._movePathY(env, o[6], offset[1], marginlimit)
           ]);
           break;
-        case 'S': case 's': case 'Q': case 'q':
+        case 'S': case 'Q':
           // Fixed for uppercase Q in 2.1.5
           // (x1 y1 x y)+
           // newpath.push([o[0], o[1], o[2], this._movePathX(env, o[3], offset[0], marginlimit), this._movePathY(env, o[4], offset[1], marginlimit)]);

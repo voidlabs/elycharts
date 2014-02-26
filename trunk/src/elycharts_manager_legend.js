@@ -98,7 +98,7 @@ $.elycharts.legendmanager = {
             x = Math.floor(propsx + lMargin + w * i);
           } else {
             w = (propswidth - wMargin) - wauto;
-            x = propsx + lMargin + wauto;
+            x = Math.floor(propsx + lMargin + wauto);
           }
           y = Math.floor(props.y + tMargin);
         }
@@ -130,7 +130,7 @@ $.elycharts.legendmanager = {
         i++;
       }
     }
-      
+
     if (autowidth)
       propswidth = wauto + props.margins[3] + props.margins[1] - 1;
     if (autox) {

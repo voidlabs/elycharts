@@ -21,14 +21,14 @@ $.elycharts.templates = {
     // type : 'line|pie|funnel|barline'
     
     // Permette di specificare una configurazione di default da utilizzare (definita in $.elycharts.templates.NOME)
-    // La configurazione completa � quindi data da tutti i valori della conf di default alla quale viene unita (con sovrascrittura) la conf corrente
-    // Il parametro � ricorsivo (la configurazione di default puo' a sua volta avere una configurazione di default)
-    // Se non specificato, la configurazione di default � quella con lo stesso nome del tipo di grafico
+    // La configurazione completa è quindi data da tutti i valori della conf di default alla quale viene unita (con sovrascrittura) la conf corrente
+    // Il parametro è ricorsivo (la configurazione di default puo' a sua volta avere una configurazione di default)
+    // Se non specificato, la configurazione di default è quella con lo stesso nome del tipo di grafico
     // template : 'NOME',
     
     /* DATI:
-    // I valori associati a ogni serie del grafico. Ogni serie � associata a una chiave dell'oggetto value, il cui 
-    // valore � l'array di dati relativi
+    // I valori associati a ogni serie del grafico. Ogni serie è associata a una chiave dell'oggetto value, il cui 
+    // valore è l'array di dati relativi
     values : {},
     
     // Label associate ai valori del grafico
@@ -79,7 +79,7 @@ $.elycharts.templates = {
       tooltip : {
         active : true,
         // Se width ed height vengono impostati a 0 o ad "auto" (equivalenti) non vengono fissate dimensioni, quindi il contenuto si autodimensiona in funzione del tooltip
-        // Impostare a 0|auto � incompatibile con il frame SVG, quindi viene automaticamente disabilitato (come se frameProps = false)
+        // Impostare a 0|auto è incompatibile con il frame SVG, quindi viene automaticamente disabilitato (come se frameProps = false)
         width: 100, height: 50, 
         roundedCorners: 5, 
         padding: [6, 6] /* y, x */,
@@ -141,7 +141,7 @@ $.elycharts.templates = {
         // Disegna o meno la label interna al grafico
         active : false,
         // Imposta un offset [X,Y] per la label (le coordinate sono relative al sistema di assi dello specifico settore disegnato. 
-        // Ad es. per il piechart la X � la distanza dal centro, la Y lo spostamento ortogonale
+        // Ad es. per il piechart la X è la distanza dal centro, la Y lo spostamento ortogonale
         //offset : [x, y],
         html : false,
         // Proprieta' della label (per HTML = false)
@@ -252,9 +252,9 @@ $.elycharts.templates = {
         padding : [ 5, 5 ],
         // La distanza dal bordo sinistro
         left : 10,
-        // Percorso della linea: [ [ x, y iniziali (rispetto al punto di inizio standard)], ... [x, y intermedi (rispetto al punto di inizio standard)] ..., [x, y finale (rispetto all'angolo del balloon pi� vicino al punto di inizio)] ]
+        // Percorso della linea: [ [ x, y iniziali (rispetto al punto di inizio standard)], ... [x, y intermedi (rispetto al punto di inizio standard)] ..., [x, y finale (rispetto all'angolo del balloon più vicino al punto di inizio)] ]
         line : [ [ 0, 0 ], [0, 0] ],
-        // Propriet� della linea
+        // Proprietà della linea
         lineProps : { }
       },
       legend : {
@@ -298,7 +298,7 @@ $.elycharts.templates = {
     // Axis
     defaultAxis : {
       // [non per asse x] Normalizza il valore massimo dell'asse in modo che tutte le label abbiamo al massimo N cifre significative
-      // (Es: se il max e' 135 e normalize = 2 verra' impostato il max a 140, ma se il numero di label in y e' 3 verr� impostato 150)
+      // (Es: se il max e' 135 e normalize = 2 verra' impostato il max a 140, ma se il numero di label in y e' 3 verrà impostato 150)
       normalize: 2,
       // Permette di impostare i valori minimi e massimi di asse (invece di autorilevarli)
       min: 0, //max: x,
@@ -341,7 +341,7 @@ $.elycharts.templates = {
       // Tipo di serie, puo' essere 'line' o 'bar'
       type : 'line', 
       // L'asse di riferimento della serie. Gli assi "l" ed "r" sono i 2 assi visibili destro e sinistro. 
-      // E' possibile inserire anche un asse arbitrario (che non sar� visibile)
+      // E' possibile inserire anche un asse arbitrario (che non sarà visibile)
       axis : 'l',
       // Specificare cumulative = true se i valori inseriti per la serie sono cumulativi
       cumulative : false,
